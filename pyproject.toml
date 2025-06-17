@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "quacc_scripts"
-description="A Python package description goes here."
+description="A Python package for running MLP workflows."
 version = "0.0.1"
 readme = "README.md"
 license = { text = "BSD-3" }
-authors = [{ name = "YourName", email = "YourName@email.com" }]
+authors = [{ name = "Blake Dallmann", email = "bd8619@princeton.edu" }]
 keywords = ["MyKeyword1", "MyKeyword2"]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -39,15 +39,21 @@ docs = [
 ]
 
 [project.urls]
-repository = "https://github.com/Quantum-Accelerators/template"
+repository = "https://github.com/Quantum-Accelerators/quacc_scripts"
 documentation = "https://quantum-accelerators.github.io/template/"
 changelog = "https://github.com/Quantum-Accelerators/template/blob/main/CHANGELOG.md"
 
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
 [tool.setuptools.package-data]
-template = ["py.typed"]
+quacc_scripts = ["py.typed"]
 
 [tool.pyright]
-include = ["template"]
+include = ["quacc_scripts"]
 exclude = ["**/__pycache__"]
 
 [tool.pytest.ini_options]
