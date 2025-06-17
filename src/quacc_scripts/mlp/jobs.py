@@ -5,7 +5,7 @@ from ase.io import write
 from mace.calculators import MACECalculator
 from ase.optimize import BFGS
 from ase.calculators.emt import EMT
-from matcalc import PhononCalc
+from matcalc import PhononCalc, RelaxCalc
 import numpy as np
 from contextlib import redirect_stdout
 from pymatgen.core import Structure
@@ -14,35 +14,32 @@ from ase.filters import FrechetCellFilter
 
 @job
 def relax_mof(atoms, model_path):
+    write('POSCAR', atoms, format='vasp')
     calc = MACECalculator(
         model_paths=[model_path],
         device="cuda",
-        stress= True,
         default_dtype="float64"
         )
-    atoms.calc = calc
-
-    ecf = FrechetCellFilter(atoms)
+    runner = RelaxCalc(calculator = calc, max_steps = 100000, traj_file = "relax.traj", fmax=1e-3, relax_atoms = True, relax_cell = True)
+    result = runner.run(atoms)
     
-    opt = BFGS(ecf, logfile="relax.log", trajectory="relax.traj")
-    opt.run(fmax=1e-3, steps=100000)
-
     write('CONTCAR', atoms, format='vasp')
 
-    return {"output_atoms": ecf.atoms}
+    return {"output_atoms": atoms}
 
 @job
 def phonon_mof(atoms, model_path):
-    structure = Structure.from_ase_atoms(atoms)
     
     calc = MACECalculator(
         model_paths=[model_path],
         device="cuda",
         default_dtype="float64"
         )
-    atoms.calc = calc
-
-    phonon_calc = PhononCalc(calc, supercell_matrix = ((1,0,0),(0,1,0),(0,0,1))).calc(structure)
+     supercell_matrix = np.diag(
+    np.round(np.ceil(20.0 / atoms.cell.lengths()))
+    )
+    
+    phonon_calc = PhononCalc(calc, supercell_matrix = supercell_matrix).calc(atoms)
 
     phonon = phonon_calc["phonon"]
     heat_capacity = phonon.get_thermal_properties_dict()["heat_capacity"]
