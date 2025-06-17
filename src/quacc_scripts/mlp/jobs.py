@@ -35,7 +35,7 @@ def phonon_mof(atoms, model_path):
         device="cuda",
         default_dtype="float64"
         )
-     supercell_matrix = np.diag(
+    supercell_matrix = np.diag(
     np.round(np.ceil(20.0 / atoms.cell.lengths()))
     )
     
