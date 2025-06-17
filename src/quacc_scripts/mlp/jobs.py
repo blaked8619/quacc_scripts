@@ -10,7 +10,7 @@ import numpy as np
 from contextlib import redirect_stdout
 from pymatgen.core import Structure
 from ase.filters import FrechetCellFilter
-
+from ase.optimize import BFGS
 
 @job
 def relax_mof(atoms, model_path):
@@ -20,7 +20,7 @@ def relax_mof(atoms, model_path):
         device="cuda",
         default_dtype="float64"
         )
-    runner = RelaxCalc(calculator = calc, max_steps = 100000, traj_file = "relax.traj", fmax=1e-3, relax_atoms = True, relax_cell = True)
+    runner = RelaxCalc(calculator = calc, optimizer = BFGS, max_steps = 100000, traj_file = "relax.traj", fmax=1e-3, relax_atoms = True, relax_cell = True)
     result = runner.calc(atoms)
     
     write('CONTCAR', atoms, format='vasp')
