@@ -21,7 +21,7 @@ def relax_mof(atoms, model_path):
         default_dtype="float64"
         )
     runner = RelaxCalc(calculator = calc, max_steps = 100000, traj_file = "relax.traj", fmax=1e-3, relax_atoms = True, relax_cell = True)
-    result = runner.run(atoms)
+    result = runner.calc(atoms)
     
     write('CONTCAR', atoms, format='vasp')
 
