@@ -9,22 +9,27 @@ from matcalc import PhononCalc
 import numpy as np
 from contextlib import redirect_stdout
 from pymatgen.core import Structure
+from ase.filters import FrechetCellFilter
 
 
 @job
 def relax_mof(atoms, model_path):
     calc = MACECalculator(
         model_paths=[model_path],
-        stress=True
+        device="cuda",
+        stress= True,
+        default_dtype="float64"
         )
     atoms.calc = calc
 
-    opt = BFGS(atoms, logfile="relax.log", trajectory="relax.traj")
-    opt.run(fmax=1e-3, steps=1000000)
+    ecf = FrechetCellFilter(atoms)
+    
+    opt = BFGS(ecf, logfile="relax.log", trajectory="relax.traj")
+    opt.run(fmax=1e-3, steps=100000)
 
     write('CONTCAR', atoms, format='vasp')
 
-    return {"output_atoms": atoms}
+    return {"output_atoms": ecf.atoms}
 
 @job
 def phonon_mof(atoms, model_path):
@@ -32,7 +37,8 @@ def phonon_mof(atoms, model_path):
     
     calc = MACECalculator(
         model_paths=[model_path],
-        stress=True
+        device="cuda",
+        default_dtype="float64"
         )
     atoms.calc = calc
 
