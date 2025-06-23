@@ -22,10 +22,11 @@ def relax_mof(atoms, model_path):
         )
     runner = RelaxCalc(calculator = calc, optimizer = BFGS, max_steps = 100000, traj_file = "relax.traj", fmax=1e-3, relax_atoms = True, relax_cell = True)
     result = runner.calc(atoms)
+    energy = atoms.get_potential_energy()
     
     write('CONTCAR', atoms, format='vasp')
 
-    return {"output_atoms": atoms}
+    return {"output_atoms": atoms, "energy": energy}
 
 @job
 def phonon_mof(atoms, model_path):
