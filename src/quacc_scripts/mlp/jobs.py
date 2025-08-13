@@ -43,8 +43,6 @@ def phonon_mof(atoms, model_path):
     phonon_calc = PhononCalc(calc, supercell_matrix = supercell_matrix).calc(atoms)
 
     phonon = phonon_calc["phonon"]
-    heat_capacity = phonon.get_thermal_properties_dict()["heat_capacity"]
-
 
     phonon.run_mesh([20, 20, 20])
     phonon.run_thermal_properties(t_step=1,
