@@ -11,6 +11,8 @@ from contextlib import redirect_stdout
 from pymatgen.core import Structure
 from ase.filters import FrechetCellFilter
 from ase.optimize import BFGS
+from fairchem.core import pretrained_mlip, FAIRChemCalculator
+
 
 @job
 def relax_mof(atoms, model_path):
