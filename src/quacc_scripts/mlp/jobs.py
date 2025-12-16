@@ -69,7 +69,7 @@ def relax_mp(atoms):
     write('POSCAR', atoms, format='vasp')
 
     model_name = "uma-s-1p1"
-    predictor = pretrained_mlip.get_predict_unit(model_name)
+    predictor = pretrained_mlip.get_predict_unit(model_name, device="cuda")
     calc = FAIRChemCalculator(predictor, task_name="omat")
 
     runner = RelaxCalc(calculator = calc, optimizer = BFGS, max_steps = 100000, traj_file = "relax.traj", fmax=1e-3, relax_atoms = True, relax_cell = True)
@@ -86,7 +86,7 @@ def phonon_mp(atoms):
 
 
     model_name = "uma-s-1p1"
-    predictor = pretrained_mlip.get_predict_unit(model_name)
+    predictor = pretrained_mlip.get_predict_unit(model_name, device = "cuda")
     calc = FAIRChemCalculator(predictor, task_name="omat")
 
 
