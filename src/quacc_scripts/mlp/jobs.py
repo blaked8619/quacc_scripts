@@ -157,6 +157,10 @@ def relax_gas(atoms):
 
 @job
 def gas_vibrations(atoms, mlip_energy):
+    model_name = "uma-s-1p1"
+    predictor = pretrained_mlip.get_predict_unit(model_name, device="cuda")
+    atoms.calc = FAIRChemCalculator(predictor, task_name="omol")
+
     vib = Vibrations(atoms)
     vib.run()
     vib_energies = vib.get_energies()
