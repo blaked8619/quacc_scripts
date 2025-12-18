@@ -17,6 +17,7 @@ from ase.thermochemistry import IdealGasThermo
 from ase.vibrations import Vibrations
 from ase import units
 from emmet.core.symmetry import PointGroupData
+from pymatgen.io.ase import AseAtomsAdaptor
 
 
 @job
