@@ -1,3 +1,7 @@
+import torch
+# Fix PyTorch 2.6 compatibility with e3nn
+torch.serialization.add_safe_globals([slice])
+
 import quacc
 from jobflow import job
 from jobflow_remote import submit_flow, set_run_config
