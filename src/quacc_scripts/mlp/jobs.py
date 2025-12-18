@@ -165,6 +165,16 @@ def gas_vibrations(atoms, mlip_energy):
     vib.run()
     vib_energies = vib.get_energies()
 
+    real_energies = []
+    imag_energies = []
+    
+    for energy in vib_energies:
+        if np.iscomplex(energy) or energy < 0:
+            # Imaginary frequency (unstable mode)
+            imag_energies.append(float(np.abs(energy)))
+        else:
+            real_energies.append(float(energy))
+            
     #find the symmetry number
     mol = AseAtomsAdaptor().get_molecule(atoms, charge_spin_check=False)
     point_group_data = PointGroupData().from_molecule(mol)
@@ -217,5 +227,5 @@ def gas_vibrations(atoms, mlip_energy):
            header=header_full)
 
     
-    return {"output_atoms": atoms, "vibration_energies": vib_energies, "spin_quantum_number": spin, "geometry": geometry, "thermal_properties": data}
+    return {"output_atoms": atoms, "real_vibration_energies": real_energies, "imag_vibration_energies": imag_energies ,"spin_quantum_number": spin, "geometry": geometry, "thermal_properties": data}
 
