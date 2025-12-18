@@ -141,6 +141,7 @@ def relax_gas(atoms):
         print(f"Total magnetization: {total_magmom:.2f}")
         print(f"Inferred spin multiplicity: {spin_multiplicity}")
     except:
+        magmoms = None
         print("No magnetic moments found (non-spin-polarized calculation)")
         atoms.info['spin'] = 1  # Default to singlet
 
