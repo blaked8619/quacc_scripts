@@ -148,7 +148,7 @@ def relax_gas(atoms):
     result = runner.calc(atoms)
     mlip_energy = atoms.get_potential_energy()
     
-    return {"output_atoms": atoms, "mlip_energy": mlip_energy}
+    return {"output_atoms": atoms, "mlip_energy": mlip_energy, "magmoms": atoms.get_magnetic_moments, "spin_multiplicity": atoms.info['spin']}
 
 @job
 def gas_vibrations(atoms, mlip_energy):
