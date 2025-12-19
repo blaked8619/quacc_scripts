@@ -127,9 +127,9 @@ def phonon_mp(atoms):
     return {"thermal_properties": data}
 
 @job
-def relax_gas(atoms):
+def relax_gas(atoms, magmoms):
     try:
-        magmoms = atoms.get_initial_magnetic_moments()
+        #magmoms = atoms.get_initial_magnetic_moments()
         total_magmom = np.sum(magmoms)
 
         # Spin multiplicity = |total magnetization| + 1
@@ -161,6 +161,8 @@ def gas_vibrations(atoms, mlip_energy):
     predictor = pretrained_mlip.get_predict_unit(model_name, device="cuda")
     atoms.calc = FAIRChemCalculator(predictor, task_name="omol")
 
+    spin_multiplicity = atoms.info['spin']
+    
     vib = Vibrations(atoms)
     vib.run()
     vib_energies = vib.get_energies()
@@ -227,5 +229,5 @@ def gas_vibrations(atoms, mlip_energy):
            header=header_full)
 
     
-    return {"output_atoms": atoms, "real_vibration_energies": real_energies, "imag_vibration_energies": imag_energies ,"spin_quantum_number": spin, "geometry": geometry, "thermal_properties": data}
+    return {"output_atoms": atoms, "real_vibration_energies": real_energies, "imag_vibration_energies": imag_energies ,"spin_multiplicity": spin_multiplicity, "spin_quantum_number": spin, "geometry": geometry, "thermal_properties": data}
 
