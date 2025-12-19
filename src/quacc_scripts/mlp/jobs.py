@@ -129,7 +129,7 @@ def phonon_mp(atoms):
 @job
 def relax_gas(atoms):
     try:
-        magmoms = atoms.get_magnetic_moments()
+        magmoms = atoms.get_initial_magnetic_moments()
         total_magmom = np.sum(magmoms)
 
         # Spin multiplicity = |total magnetization| + 1
