@@ -127,7 +127,7 @@ def phonon_mp(atoms):
     return {"thermal_properties": data}
 
 @job
-def relax_gas(atoms): #, magmoms):
+def relax_gas(atoms):
     try:
         magmoms = atoms.get_initial_magnetic_moments()
         total_magmom = np.sum(magmoms)
