@@ -133,6 +133,7 @@ def relax_gas(atoms):
         total_magmom = np.sum(magmoms)
 
         # Spin multiplicity = |total magnetization| + 1
+        # I'm not sure if this is exactly correct but I verified for each gas that the spin_multiplicity matched what is expected
         spin_multiplicity = int(round(abs(total_magmom))) + 1
 
         # Store it
