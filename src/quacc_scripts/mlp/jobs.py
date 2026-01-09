@@ -77,6 +77,38 @@ def phonon_mof(atoms, model_path):
     return {"thermal_properties": data}
 
 @job
+def QHA_mof(atoms, model_path):
+    atom_disp = 0.01
+    fmax = 1e-3
+    min_lengths = 20.0
+    supercell_matrix = np.diag(
+    np.round(np.ceil(min_lengths / atoms.cell.lengths()))
+    )
+    
+    calc = MACECalculator(
+        model_paths=[model_path],
+        device="cuda",
+        default_dtype="float64"
+        )
+
+    qha_calc = QHACalc(calc, fmax=fmax, t_step = 1, pressure = 0.0001, optimizer="BFGS", relax_calc_kwargs={"traj_file": "relax.traj", "max_steps":100000}, phonon_calc_kwargs={"supercell_matrix": supercell_matrix, "atom_disp": atom_disp})
+    result = qha_calc.calc(atoms)
+
+    raw_G = result["gibbs_free_energies"]
+    gibbs_energies = np.insert(raw_G, 0, np.nan)
+    temperatures = result["temperatures"]
+
+    data = np.column_stack((temperatures, gibbs_energies))
+
+    header_full = "T (K)          Gibbs(eV)     "
+    np.savetxt("thermal_properties_full.txt", data,
+           fmt="%12.3f %15.7f",
+           header=header_full)
+
+    return {"thermal_properties": data}
+
+
+@job
 def relax_mp(atoms):
     write('POSCAR', atoms, format='vasp')
 
