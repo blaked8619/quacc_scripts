@@ -25,6 +25,8 @@ from pymatgen.io.ase import AseAtomsAdaptor
 
 from matcalc._qha import QHACalc
 
+import json
+from monty.json import MontyEncoder
 
 @job
 def relax_mof(atoms, model_path):
@@ -37,7 +39,10 @@ def relax_mof(atoms, model_path):
     runner = RelaxCalc(calculator = calc, optimizer = BFGS, max_steps = 100000, traj_file = "relax.traj", fmax=1e-3, relax_atoms = True, relax_cell = True)
     result = runner.calc(atoms)
     energy = atoms.get_potential_energy()
-    
+
+    with open("relax_results.json", "w") as f:
+        json.dump(result, f, cls=MontyEncoder, indent=2)
+        
     write('CONTCAR', atoms, format='vasp')
 
     return {"output_atoms": atoms, "energy": energy}
@@ -121,6 +126,10 @@ def relax_mp(atoms):
     result = runner.calc(atoms)
     energy = atoms.get_potential_energy()
 
+
+    with open("relax_results.json", "w") as f:
+        json.dump(result, f, cls=MontyEncoder, indent=2)
+        
     write('CONTCAR', atoms, format='vasp')
 
     return {"output_atoms": atoms, "energy": energy}
@@ -216,6 +225,10 @@ def relax_gas(atoms):
 
     runner = RelaxCalc(calculator = calc, optimizer = BFGS, max_steps = 100000, traj_file = "relax.traj", fmax=1e-3, relax_atoms = True, relax_cell = True)
     result = runner.calc(atoms)
+    
+    with open("relax_results.json", "w") as f:
+        json.dump(result, f, cls=MontyEncoder, indent=2)
+        
     mlip_energy = atoms.get_potential_energy()
     
     return {"result": result, "output_atoms": atoms, "mlip_energy": mlip_energy, "magmoms": magmoms, "spin_multiplicity": atoms.info['spin']}
