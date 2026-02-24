@@ -91,7 +91,7 @@ def QHA_mof(atoms, model_path):
         default_dtype="float64"
         )
 
-    qha_calc = QHACalc(calc, fmax=fmax, t_step = 1, pressure = 0.0001, optimizer="BFGS", relax_calc_kwargs={"traj_file": "relax.traj", "max_steps":100000}, phonon_calc_kwargs={"supercell_matrix": supercell_matrix, "atom_disp": atom_disp})
+    qha_calc = QHACalc(calc, fmax=fmax, t_step = 1, pressure = 0.0001, optimizer="BFGS", relax_calc_kwargs={"traj_file": "relax.traj", "max_steps":100000}, phonon_calc_kwargs={"supercell_matrix": supercell_matrix, "atom_disp": atom_disp, "write_total_dos": True})
     result = qha_calc.calc(atoms)
 
     raw_G = result["gibbs_free_energies"]
@@ -173,7 +173,7 @@ def QHA_mp(atoms):
     predictor = pretrained_mlip.get_predict_unit(model_name, device = "cuda")
     calc = FAIRChemCalculator(predictor, task_name="omat")
 
-    qha_calc = QHACalc(calc, fmax=fmax, t_step = 1, pressure = 0.0001, optimizer="BFGS", relax_calc_kwargs={"traj_file": "relax.traj", "max_steps":100000}, phonon_calc_kwargs={"supercell_matrix": supercell_matrix, "atom_disp": atom_disp})
+    qha_calc = QHACalc(calc, fmax=fmax, t_step = 1, pressure = 0.0001, optimizer="BFGS", relax_calc_kwargs={"traj_file": "relax.traj", "max_steps":100000}, phonon_calc_kwargs={"supercell_matrix": supercell_matrix, "atom_disp": atom_disp, "write_total_dos": True})
     result = qha_calc.calc(atoms)
 
     raw_G = result["gibbs_free_energies"]
