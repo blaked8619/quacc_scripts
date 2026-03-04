@@ -28,6 +28,21 @@ from matcalc._qha import QHACalc
 import json
 from monty.json import MontyEncoder
 
+class CustomQHACalc(QHACalc):
+    """QHACalc that doesn't force write_phonon internally"""
+    
+    def _calculate_thermal_properties(self, structure):
+        """Override to remove internal write_phonon setting"""
+        relaxed = self._relax(structure)
+        
+        # Don't set write_phonon here - let phonon_calc_kwargs control it
+        phonon_calc = PhononCalc(
+            calculator=self.calculator,
+            **self.phonon_calc_kwargs  # Your kwargs fully control behavior
+        )
+        
+        return phonon_calc.calc(relaxed)
+
 @job
 def relax_mof(atoms, model_path):
     write('POSCAR', atoms, format='vasp')
@@ -96,7 +111,7 @@ def QHA_mof(atoms, model_path):
         default_dtype="float64"
         )
 
-    qha_calc = QHACalc(calc, fmax=fmax, t_step = 1, pressure = 0.0001, optimizer="BFGS", relax_calc_kwargs={"traj_file": "relax.traj", "max_steps":100000}, phonon_calc_kwargs={"supercell_matrix": supercell_matrix, "atom_disp": atom_disp, "write_band_structure": "band_structure", "write_phonon": "phonon"})
+    qha_calc = CustomQHACalc(calc, fmax=fmax, t_step = 1, pressure = 0.0001, optimizer="BFGS", relax_calc_kwargs={"traj_file": "relax.traj", "max_steps":100000}, phonon_calc_kwargs={"supercell_matrix": supercell_matrix, "atom_disp": atom_disp,"write_total_dos": True ,"write_band_structure": "band_structure.yaml", "write_phonon": "phonon.yaml"})
     result = qha_calc.calc(atoms)
 
     raw_G = result["gibbs_free_energies"]
