@@ -96,7 +96,7 @@ def QHA_mof(atoms, model_path):
         default_dtype="float64"
         )
 
-    qha_calc = QHACalc(calc, fmax=fmax, t_step = 1, pressure = 0.0001, optimizer="BFGS", relax_calc_kwargs={"traj_file": "relax.traj", "max_steps":100000}, phonon_calc_kwargs={"supercell_matrix": supercell_matrix, "atom_disp": atom_disp, "write_band_structure": "band_structure.yaml", "write_phonon": "phonon.yaml"})
+    qha_calc = QHACalc(calc, fmax=fmax, t_step = 1, pressure = 0.0001, optimizer="BFGS", relax_calc_kwargs={"traj_file": "relax.traj", "max_steps":100000}, phonon_calc_kwargs={"supercell_matrix": supercell_matrix, "atom_disp": atom_disp, "write_band_structure": "band_structure", "write_phonon": "phonon"})
     result = qha_calc.calc(atoms)
 
     raw_G = result["gibbs_free_energies"]
