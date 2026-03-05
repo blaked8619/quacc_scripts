@@ -96,34 +96,36 @@ def QHA_mof(atoms, model_path):
         default_dtype="float64"
         )
 
-    qha_calc = QHACalc(calc, fmax=fmax, t_step = 1, pressure = 0.0001, optimizer="BFGS", relax_calc_kwargs={"traj_file": "relax.traj", "max_steps":100000}, phonon_calc_kwargs={"supercell_matrix": supercell_matrix, "atom_disp": atom_disp,"write_total_dos": True ,"write_phonon": True})
+    qha_calc = QHACalc(calc, fmax=fmax, t_step = 1, pressure = 0.0001, optimizer="BFGS", relax_calc_kwargs={"traj_file": "relax.traj", "max_steps":100000}, phonon_calc_kwargs={"supercell_matrix": supercell_matrix, "atom_disp": atom_disp,"write_total_dos": True ,"write_band_structure": True})
     result = qha_calc.calc(atoms)
 
     phonopy_qha = result["qha"]
+    internal_qha = phonopy_qha._qha
     
-      # Inspect the _qha private attribute
-    with open("qha_internal_inspection.txt", "w") as f:
-        f.write("=== Inspecting phonopy_qha._qha ===\n\n")
+    # Check _fe_phonon
+    with open("fe_phonon_inspection.txt", "w") as f:
+        f.write("=== _fe_phonon contents ===\n\n")
         
-        internal_qha = phonopy_qha._qha
-        f.write(f"Type: {type(internal_qha)}\n\n")
+        fe_phonon = internal_qha._fe_phonon
+        f.write(f"Type: {type(fe_phonon)}\n")
         
-        f.write("Attributes:\n")
-        for attr in dir(internal_qha):
-            if not attr.startswith('__'):
-                f.write(f"  - {attr}\n")
-                
-                # Check for phonopy objects
-                if 'phonon' in attr.lower():
-                    f.write(f"    ^^^ PHONON-RELATED!\n")
+        if isinstance(fe_phonon, np.ndarray):
+            f.write(f"Shape: {fe_phonon.shape}\n")
+            f.write(f"Data (first 10 rows):\n{fe_phonon[:10]}\n")
+        elif isinstance(fe_phonon, list):
+            f.write(f"Length: {len(fe_phonon)}\n")
+            f.write(f"First element type: {type(fe_phonon[0])}\n")
     
-    # Also try to write available files
-    try:
-        phonopy_qha.write_helmholtz_volume("helmholtz_volume.dat")
-        phonopy_qha.write_gibbs_temperature("gibbs_temperature.dat")
-    except Exception as e:
-        with open("write_error.txt", "w") as f:
-            f.write(f"Error: {e}\n")
+    # The phonon objects were likely computed and discarded
+    # The actual frequencies aren't stored in QHA
+    with open("phonon_data_conclusion.txt", "w") as f:
+        f.write("CONCLUSION:\n")
+        f.write("PhonopyQHA only stores thermal properties (free energies),\n")
+        f.write("not the actual phonon frequencies or eigenvectors.\n\n")
+        f.write("The phonon calculations were done earlier and only the\n")
+        f.write("resulting free energies were kept.\n\n")
+        f.write("To get frequencies, you need to modify matcalc to save\n")
+        f.write("phonon.yaml files during the PhononCalc step BEFORE QHA.\n")
     
     raw_G = result["gibbs_free_energies"]
     gibbs_energies = np.insert(raw_G, 0, np.nan)
