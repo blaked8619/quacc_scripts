@@ -1,7 +1,7 @@
 import torch
 # Fix PyTorch 2.6 compatibility with e3nn
 torch.serialization.add_safe_globals([slice])
-
+import pickle
 import quacc
 from jobflow import job
 from jobflow_remote import submit_flow, set_run_config
@@ -96,7 +96,7 @@ def QHA_mof(atoms, model_path):
         default_dtype="float64"
         )
 
-    qha_calc = QHACalc(calc, fmax=fmax, t_step = 1, pressure = 0.0001, optimizer="BFGS", relax_calc_kwargs={"traj_file": "relax.traj", "max_steps":100000}, phonon_calc_kwargs={"supercell_matrix": supercell_matrix, "atom_disp": atom_disp,"write_total_dos": True ,"write_band_structure": True, "write_phonon": True})
+    qha_calc = QHACalc(calc, fmax=fmax, t_step = 1, pressure = 0.0001, optimizer="BFGS", relax_calc_kwargs={"traj_file": "relax.traj", "max_steps":100000}, phonon_calc_kwargs={"supercell_matrix": supercell_matrix, "atom_disp": atom_disp,"write_total_dos": True ,"write_band_structure": True})
     result = qha_calc.calc(atoms)
 
     # Dump entire result to see what's available
