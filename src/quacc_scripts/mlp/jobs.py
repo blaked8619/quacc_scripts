@@ -101,29 +101,29 @@ def QHA_mof(atoms, model_path):
 
     phonopy_qha = result["qha"]
     
-    # Inspect what's actually in the PhonopyQHA object
-    with open("phonopy_qha_inspection.txt", "w") as f:
-        f.write("=== PhonopyQHA Object Inspection ===\n\n")
+      # Inspect the _qha private attribute
+    with open("qha_internal_inspection.txt", "w") as f:
+        f.write("=== Inspecting phonopy_qha._qha ===\n\n")
         
-        # List all attributes
-        f.write("All attributes:\n")
-        for attr in dir(phonopy_qha):
-            if not attr.startswith('_'):
+        internal_qha = phonopy_qha._qha
+        f.write(f"Type: {type(internal_qha)}\n\n")
+        
+        f.write("Attributes:\n")
+        for attr in dir(internal_qha):
+            if not attr.startswith('__'):
                 f.write(f"  - {attr}\n")
-        
-        f.write("\n\nPrivate attributes (may contain data):\n")
-        for attr in dir(phonopy_qha):
-            if attr.startswith('_') and not attr.startswith('__'):
-                f.write(f"  - {attr}\n")
-        
-        # Try common methods
-        f.write("\n\nTrying common methods:\n")
-        
-        if hasattr(phonopy_qha, 'get_bulk_modulus'):
-            f.write("  Has get_bulk_modulus()\n")
-
-        if hasattr(phonopy_qha, 'get_helmholtz_volume'):
-            f.write("  Has get_helmholtz_volume()\n")
+                
+                # Check for phonopy objects
+                if 'phonon' in attr.lower():
+                    f.write(f"    ^^^ PHONON-RELATED!\n")
+    
+    # Also try to write available files
+    try:
+        phonopy_qha.write_helmholtz_volume("helmholtz_volume.dat")
+        phonopy_qha.write_gibbs_temperature("gibbs_temperature.dat")
+    except Exception as e:
+        with open("write_error.txt", "w") as f:
+            f.write(f"Error: {e}\n")
     
     raw_G = result["gibbs_free_energies"]
     gibbs_energies = np.insert(raw_G, 0, np.nan)
