@@ -98,34 +98,6 @@ def QHA_mof(atoms, model_path):
 
     qha_calc = QHACalc(calc, fmax=fmax, t_step = 1, pressure = 0.0001, optimizer="BFGS", relax_calc_kwargs={"traj_file": "relax.traj", "max_steps":100000}, phonon_calc_kwargs={"supercell_matrix": supercell_matrix, "atom_disp": atom_disp,"write_total_dos": True ,"write_band_structure": True})
     result = qha_calc.calc(atoms)
-
-    phonopy_qha = result["qha"]
-    internal_qha = phonopy_qha._qha
-    
-    # Check _fe_phonon
-    with open("fe_phonon_inspection.txt", "w") as f:
-        f.write("=== _fe_phonon contents ===\n\n")
-        
-        fe_phonon = internal_qha._fe_phonon
-        f.write(f"Type: {type(fe_phonon)}\n")
-        
-        if isinstance(fe_phonon, np.ndarray):
-            f.write(f"Shape: {fe_phonon.shape}\n")
-            f.write(f"Data (first 10 rows):\n{fe_phonon[:10]}\n")
-        elif isinstance(fe_phonon, list):
-            f.write(f"Length: {len(fe_phonon)}\n")
-            f.write(f"First element type: {type(fe_phonon[0])}\n")
-    
-    # The phonon objects were likely computed and discarded
-    # The actual frequencies aren't stored in QHA
-    with open("phonon_data_conclusion.txt", "w") as f:
-        f.write("CONCLUSION:\n")
-        f.write("PhonopyQHA only stores thermal properties (free energies),\n")
-        f.write("not the actual phonon frequencies or eigenvectors.\n\n")
-        f.write("The phonon calculations were done earlier and only the\n")
-        f.write("resulting free energies were kept.\n\n")
-        f.write("To get frequencies, you need to modify matcalc to save\n")
-        f.write("phonon.yaml files during the PhononCalc step BEFORE QHA.\n")
     
     raw_G = result["gibbs_free_energies"]
     gibbs_energies = np.insert(raw_G, 0, np.nan)
@@ -210,7 +182,7 @@ def QHA_mp(atoms):
     predictor = pretrained_mlip.get_predict_unit(model_name, device = "cuda")
     calc = FAIRChemCalculator(predictor, task_name="omat")
 
-    qha_calc = QHACalc(calc, fmax=fmax, t_step = 1, pressure = 0.0001, optimizer="BFGS", relax_calc_kwargs={"traj_file": "relax.traj", "max_steps":100000}, phonon_calc_kwargs={"supercell_matrix": supercell_matrix, "atom_disp": atom_disp, "write_total_dos": True})
+    qha_calc = QHACalc(calc, fmax=fmax, t_step = 1, pressure = 0.0001, optimizer="BFGS", relax_calc_kwargs={"traj_file": "relax.traj", "max_steps":100000}, phonon_calc_kwargs={"supercell_matrix": supercell_matrix, "atom_disp": atom_disp, "write_total_dos": True ,"write_band_structure": True})
     result = qha_calc.calc(atoms)
 
     raw_G = result["gibbs_free_energies"]
@@ -282,7 +254,20 @@ def gas_vibrations(atoms, mlip_energy):
             imag_energies.append(float(np.abs(energy)))
         else:
             real_energies.append(float(energy))
-            
+
+    # Or save both in one file with labels
+    with open("vib_energies_summary.txt", "w") as f:
+        f.write("# Vibrational Energies Summary\n")
+        f.write(f"# Total modes: {len(vib_energies)}\n")
+        f.write(f"# Real modes: {len(real_energies)}\n")
+        f.write(f"# Imaginary modes: {len(imag_energies)}\n\n")
+        f.write("Real energies (eV):\n")
+        for e in real_energies:
+            f.write(f"{e:.6f}\n")
+            f.write("\nImaginary energies (eV, absolute values):\n")
+        for e in imag_energies:
+            f.write(f"{e:.6f}\n")
+    
     #find the symmetry number
     mol = AseAtomsAdaptor().get_molecule(atoms, charge_spin_check=False)
     point_group_data = PointGroupData().from_molecule(mol)
