@@ -99,26 +99,31 @@ def QHA_mof(atoms, model_path):
     qha_calc = QHACalc(calc, fmax=fmax, t_step = 1, pressure = 0.0001, optimizer="BFGS", relax_calc_kwargs={"traj_file": "relax.traj", "max_steps":100000}, phonon_calc_kwargs={"supercell_matrix": supercell_matrix, "atom_disp": atom_disp,"write_total_dos": True ,"write_band_structure": True})
     result = qha_calc.calc(atoms)
 
-  # Write result structure to file
-    with open("qha_result_structure.txt", "w") as f:
-        f.write("=== QHA RESULT KEYS ===\n")
-        for key in result.keys():
-            f.write(f"  - {key}\n")
+    phonopy_qha = result["qha"]
+    
+    # Inspect what's actually in the PhonopyQHA object
+    with open("phonopy_qha_inspection.txt", "w") as f:
+        f.write("=== PhonopyQHA Object Inspection ===\n\n")
         
-        f.write("\n=== CHECKING FOR PHONON DATA ===\n")
+        # List all attributes
+        f.write("All attributes:\n")
+        for attr in dir(phonopy_qha):
+            if not attr.startswith('_'):
+                f.write(f"  - {attr}\n")
         
-        # Check each key for useful data
-        for key, value in result.items():
-            if isinstance(value, np.ndarray):
-                f.write(f"{key}: numpy array, shape {value.shape}\n")
-            elif isinstance(value, list):
-                f.write(f"{key}: list, length {len(value)}\n")
-                if len(value) > 0:
-                    f.write(f"  First element type: {type(value[0])}\n")
-            elif isinstance(value, dict):
-                f.write(f"{key}: dict with keys {list(value.keys())}\n")
-            else:
-                f.write(f"{key}: {type(value)}\n")
+        f.write("\n\nPrivate attributes (may contain data):\n")
+        for attr in dir(phonopy_qha):
+            if attr.startswith('_') and not attr.startswith('__'):
+                f.write(f"  - {attr}\n")
+        
+        # Try common methods
+        f.write("\n\nTrying common methods:\n")
+        
+        if hasattr(phonopy_qha, 'get_bulk_modulus'):
+            f.write("  Has get_bulk_modulus()\n")
+
+        if hasattr(phonopy_qha, 'get_helmholtz_volume'):
+            f.write("  Has get_helmholtz_volume()\n")
     
     raw_G = result["gibbs_free_energies"]
     gibbs_energies = np.insert(raw_G, 0, np.nan)
