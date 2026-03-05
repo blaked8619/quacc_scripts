@@ -99,18 +99,26 @@ def QHA_mof(atoms, model_path):
     qha_calc = QHACalc(calc, fmax=fmax, t_step = 1, pressure = 0.0001, optimizer="BFGS", relax_calc_kwargs={"traj_file": "relax.traj", "max_steps":100000}, phonon_calc_kwargs={"supercell_matrix": supercell_matrix, "atom_disp": atom_disp,"write_total_dos": True ,"write_band_structure": True})
     result = qha_calc.calc(atoms)
 
-    # Dump entire result to see what's available
-    print("Result keys:", list(result.keys()))
-    
-    # Save entire result as pickle to inspect
-    with open("qha_full_result.pkl", "wb") as f:
-        pickle.dump(result, f)
-    
-    # Try to extract frequencies from result
-    if "frequencies" in result:
-        freqs = result["frequencies"]
-        np.savetxt("frequencies.txt", freqs)
-        print(f"Saved frequencies: shape {freqs.shape}")
+  # Write result structure to file
+    with open("qha_result_structure.txt", "w") as f:
+        f.write("=== QHA RESULT KEYS ===\n")
+        for key in result.keys():
+            f.write(f"  - {key}\n")
+        
+        f.write("\n=== CHECKING FOR PHONON DATA ===\n")
+        
+        # Check each key for useful data
+        for key, value in result.items():
+            if isinstance(value, np.ndarray):
+                f.write(f"{key}: numpy array, shape {value.shape}\n")
+            elif isinstance(value, list):
+                f.write(f"{key}: list, length {len(value)}\n")
+                if len(value) > 0:
+                    f.write(f"  First element type: {type(value[0])}\n")
+            elif isinstance(value, dict):
+                f.write(f"{key}: dict with keys {list(value.keys())}\n")
+            else:
+                f.write(f"{key}: {type(value)}\n")
     
     raw_G = result["gibbs_free_energies"]
     gibbs_energies = np.insert(raw_G, 0, np.nan)
