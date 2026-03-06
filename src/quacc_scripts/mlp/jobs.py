@@ -84,7 +84,7 @@ def phonon_mof(atoms, model_path):
 @job
 def QHA_mof(atoms, model_path):
     atom_disp = 0.01
-    fmax = 1e-6
+    fmax = 1e-7
     min_lengths = 20.0
     supercell_matrix = np.diag(
     np.round(np.ceil(min_lengths / atoms.cell.lengths()))
