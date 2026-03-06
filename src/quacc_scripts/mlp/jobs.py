@@ -37,7 +37,7 @@ def relax_mof(atoms, model_path):
         default_dtype="float64"
         )
 
-   # atoms.rattle(stdev=0.01)
+    atoms.rattle(stdev=0.01)
     
     runner = RelaxCalc(calculator = calc, optimizer = BFGS, max_steps = 100000, traj_file = "relax.traj", fmax=1e-8, relax_atoms = True, relax_cell = True)
     result = runner.calc(atoms)
