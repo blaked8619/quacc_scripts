@@ -36,7 +36,7 @@ def relax_mof(atoms, model_path):
         device="cuda",
         default_dtype="float64"
         )
-    runner = RelaxCalc(calculator = calc, optimizer = BFGS, max_steps = 100000, traj_file = "relax.traj", fmax=1e-6, relax_atoms = True, relax_cell = True)
+    runner = RelaxCalc(calculator = calc, optimizer = BFGS, max_steps = 100000, traj_file = "relax.traj", fmax=1e-7, relax_atoms = True, relax_cell = True)
     result = runner.calc(atoms)
     energy = atoms.get_potential_energy()
 
@@ -172,7 +172,7 @@ def phonon_mp(atoms):
 @job
 def QHA_mp(atoms):
     atom_disp = 0.01
-    fmax = 1e-6
+    fmax = 1e-7
     min_lengths = 20.0
     supercell_matrix = np.diag(
     np.round(np.ceil(min_lengths / atoms.cell.lengths()))
