@@ -29,7 +29,7 @@ import json
 from monty.json import MontyEncoder
 
 @job
-def relax_mof(atoms, model_path):
+def relax_mof(atoms, model_path, fmax):
     write('POSCAR', atoms, format='vasp')
     calc = MACECalculator(
         model_paths=[model_path],
@@ -39,7 +39,7 @@ def relax_mof(atoms, model_path):
 
     atoms.rattle(stdev=0.01)
     
-    runner = RelaxCalc(calculator = calc, optimizer = BFGS, max_steps = 100000, traj_file = "relax.traj", fmax=1e-8, relax_atoms = True, relax_cell = True)
+    runner = RelaxCalc(calculator = calc, optimizer = BFGS, max_steps = 100000, traj_file = "relax.traj", fmax=fmax, relax_atoms = True, relax_cell = True)
     result = runner.calc(atoms)
     energy = atoms.get_potential_energy()
 
@@ -85,9 +85,9 @@ def phonon_mof(atoms, model_path):
     return {"thermal_properties": data}
 
 @job
-def QHA_mof(atoms, model_path):
+def QHA_mof(atoms, model_path, fmax):
     atom_disp = 0.01
-    fmax = 1e-8
+    
     min_lengths = 20.0
     supercell_matrix = np.diag(
     np.round(np.ceil(min_lengths / atoms.cell.lengths()))
