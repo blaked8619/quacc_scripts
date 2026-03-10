@@ -92,6 +92,7 @@ def QHA_mof(atoms, model_path, fmax):
         model_paths=[model_path],
         device="cuda",
         default_dtype="float64"
+        head="pbe_d3"
         )
 
     result = QHACalc(
