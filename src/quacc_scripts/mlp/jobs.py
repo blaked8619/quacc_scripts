@@ -110,10 +110,14 @@ def QHA_mof(atoms, model_path, fmax):
         "write_band_structure": True
     },
     ).calc(atoms)
+    
+    cp = result["heat_capacity_P"][300]  # J/mol/K
+    gibb = result["gibbs_free_energies"][300]
+    gibb2 = result["gibbs_free_energies"][-1])
 
-    print(result["heat_capacity_P"][300])  # J/mol/K
-    print(result["gibbs_free_energies"][300])
-    print(result["gibbs_free_energies"][-1])
+    sub_data= [cp, gibb, gibb2]
+    np.savetxt("select_values.txt", sub_data)
+    
     result["qha"].plot_qha()
     plt.savefig(f"QHA.png")
 
