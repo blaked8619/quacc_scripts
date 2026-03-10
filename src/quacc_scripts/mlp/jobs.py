@@ -113,7 +113,7 @@ def QHA_mof(atoms, model_path, fmax):
     
     cp = result["heat_capacity_P"][300]  # J/mol/K
     gibb = result["gibbs_free_energies"][300]
-    gibb2 = result["gibbs_free_energies"][-1])
+    gibb2 = result["gibbs_free_energies"][-1]
 
     sub_data= [cp, gibb, gibb2]
     np.savetxt("select_values.txt", sub_data)
