@@ -16,6 +16,7 @@ from pymatgen.core import Structure
 from ase.filters import FrechetCellFilter
 from ase.optimize import BFGS
 from fairchem.core import pretrained_mlip, FAIRChemCalculator
+import matplotlib.pyplot as plt
 
 from ase.thermochemistry import IdealGasThermo
 from ase.vibrations import Vibrations
@@ -34,7 +35,8 @@ def relax_mof(atoms, model_path, fmax):
     calc = MACECalculator(
         model_paths=[model_path],
         device="cuda",
-        default_dtype="float64"
+        default_dtype="float64",
+        head="pbe_d3"
         )
     
     runner = RelaxCalc(calculator = calc, optimizer = BFGS, max_steps = 100000, traj_file = "relax.traj", fmax=fmax, relax_atoms = True, relax_cell = True)
@@ -54,7 +56,8 @@ def phonon_mof(atoms, model_path):
     calc = MACECalculator(
         model_paths=[model_path],
         device="cuda",
-        default_dtype="float64"
+        default_dtype="float64",
+        head="pbe_d3"
         )
     supercell_matrix = np.diag(
     np.round(np.ceil(20.0 / atoms.cell.lengths()))
