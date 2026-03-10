@@ -36,8 +36,6 @@ def relax_mof(atoms, model_path, fmax):
         device="cuda",
         default_dtype="float64"
         )
-
-    atoms.rattle(stdev=0.01)
     
     runner = RelaxCalc(calculator = calc, optimizer = BFGS, max_steps = 100000, traj_file = "relax.traj", fmax=fmax, relax_atoms = True, relax_cell = True)
     result = runner.calc(atoms)
@@ -86,12 +84,6 @@ def phonon_mof(atoms, model_path):
 
 @job
 def QHA_mof(atoms, model_path, fmax):
-    atom_disp = 0.01
-    
-    min_lengths = 20.0
-    supercell_matrix = np.diag(
-    np.round(np.ceil(min_lengths / atoms.cell.lengths()))
-    )
     
     calc = MACECalculator(
         model_paths=[model_path],
@@ -99,8 +91,25 @@ def QHA_mof(atoms, model_path, fmax):
         default_dtype="float64"
         )
 
-    qha_calc = QHACalc(calc, fmax=fmax, t_step = 1, pressure = 0.0001, optimizer="BFGS", relax_calc_kwargs={"traj_file": "relax.traj", "max_steps":100000}, phonon_calc_kwargs={"supercell_matrix": supercell_matrix, "atom_disp": atom_disp,"write_total_dos": True ,"write_band_structure": True})
-    result = qha_calc.calc(atoms)
+    result = QHACalc(
+    calc,
+    t_step=1,
+    t_max=650,
+    pressure=1e-4,
+    fmax=fmax,
+    max_steps=10000,
+    optimizer="LBFGS",
+    on_imaginary_modes="warn",
+    imaginary_freq_tol=-0.1,
+    fix_imaginary_attempts=1,
+    scale_factors=tuple(np.arange(0.97, 1.03, 0.01).tolist()),
+    phonon_calc_kwargs={
+        "min_length": 20.0,
+        "atom_disp": 0.01,
+        "write_total_dos": True ,
+        "write_band_structure": True
+    },
+    ).calc(atoms)
     
     raw_G = result["gibbs_free_energies"]
     gibbs_energies = np.insert(raw_G, 0, np.nan)
