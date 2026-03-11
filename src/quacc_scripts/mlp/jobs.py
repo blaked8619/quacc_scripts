@@ -106,14 +106,14 @@ def QHA_mof(atoms, model_path, fmax):
 
 
 @job
-def relax_mp(atoms):
+def relax_mp(atoms, fmax):
     write('POSCAR', atoms, format='vasp')
 
     model_name = "uma-s-1p1"
     predictor = pretrained_mlip.get_predict_unit(model_name, device="cuda")
     calc = FAIRChemCalculator(predictor, task_name="omat")
 
-    runner = RelaxCalc(calculator = calc, optimizer = BFGS, max_steps = 100000, traj_file = "relax.traj", fmax=1e-6, relax_atoms = True, relax_cell = True)
+    runner = RelaxCalc(calculator = calc, optimizer = BFGS, max_steps = 100000, traj_file = "relax.traj", fmax=fmax, relax_atoms = True, relax_cell = True)
 
     result = runner.calc(atoms)
     energy = atoms.get_potential_energy()
@@ -127,55 +127,31 @@ def relax_mp(atoms):
     return {"output_atoms": atoms, "energy": energy}
 
 @job
-def phonon_mp(atoms):
-
-
+def QHA_mp(atoms, fmax):
+  
     model_name = "uma-s-1p1"
     predictor = pretrained_mlip.get_predict_unit(model_name, device = "cuda")
     calc = FAIRChemCalculator(predictor, task_name="omat")
 
-
-    supercell_matrix = np.diag(
-    np.round(np.ceil(20.0 / atoms.cell.lengths()))
-    )
-
-    phonon_calc = PhononCalc(calc, supercell_matrix = supercell_matrix).calc(atoms)
-
-    phonon = phonon_calc["phonon"]
-
-    phonon.run_mesh([20, 20, 20])
-    phonon.run_thermal_properties(t_step=1,
-                              t_max=1000,
-                              t_min=0)
-    tp_dict = phonon.get_thermal_properties_dict()
-    temperatures   = np.array(tp_dict['temperatures'])
-    free_energy    = np.array(tp_dict['free_energy'])
-    entropy        = np.array(tp_dict['entropy'])
-    heat_capacity  = np.array(tp_dict['heat_capacity'])
-
-    data = np.column_stack((temperatures, free_energy, entropy, heat_capacity))
-
-    # Define a header and save to a text file
-    header = "T (K)          Free_energy          Entropy          Heat_capacity"
-    np.savetxt("thermal_properties.txt", data, fmt="%12.3f %15.7f %15.7f %15.7f", header=header)
-
-    return {"thermal_properties": data}
-
-@job
-def QHA_mp(atoms):
-    atom_disp = 0.01
-    fmax = 1e-7
-    min_lengths = 20.0
-    supercell_matrix = np.diag(
-    np.round(np.ceil(min_lengths / atoms.cell.lengths()))
-    )
-
-    model_name = "uma-s-1p1"
-    predictor = pretrained_mlip.get_predict_unit(model_name, device = "cuda")
-    calc = FAIRChemCalculator(predictor, task_name="omat")
-
-    qha_calc = QHACalc(calc, fmax=fmax, t_step = 1, pressure = 0.0001, optimizer="BFGS", relax_calc_kwargs={"traj_file": "relax.traj", "max_steps":100000}, phonon_calc_kwargs={"supercell_matrix": supercell_matrix, "atom_disp": atom_disp, "write_total_dos": True ,"write_band_structure": True})
-    result = qha_calc.calc(atoms)
+    result = QHACalc(
+    calc,
+    t_step=1,
+    t_max=650,
+    pressure=1e-4,
+    fmax=fmax,
+    max_steps=10000,
+    optimizer="LBFGS",
+    on_imaginary_modes="warn",
+    imaginary_freq_tol=-0.1,
+    fix_imaginary_attempts=1,
+    scale_factors=tuple(np.arange(0.97, 1.03, 0.01).tolist()),
+    phonon_calc_kwargs={
+        "min_length": 20.0,
+        "atom_disp": 0.01,
+        "write_total_dos": True ,
+        "write_band_structure": True
+    },
+    ).calc(atoms)
 
     raw_G = result["gibbs_free_energies"]
     gibbs_energies = np.insert(raw_G, 0, np.nan)
