@@ -109,7 +109,7 @@ def QHA_mof(atoms, model_path, fmax):
 def relax_mp(atoms, fmax):
     write('POSCAR', atoms, format='vasp')
 
-    model_name = "uma-s-1p2"
+    model_name = "uma-s-1p1"
     predictor = pretrained_mlip.get_predict_unit(model_name, device="cuda")
     calc = FAIRChemCalculator(predictor, task_name="omat")
 
@@ -129,7 +129,7 @@ def relax_mp(atoms, fmax):
 @job
 def QHA_mp(atoms, fmax):
   
-    model_name = "uma-s-1p2"
+    model_name = "uma-s-1p1"
     predictor = pretrained_mlip.get_predict_unit(model_name, device = "cuda")
     calc = FAIRChemCalculator(predictor, task_name="omat")
 
@@ -187,7 +187,7 @@ def relax_gas(atoms):
         print("No magnetic moments found (non-spin-polarized calculation)")
         atoms.info['spin'] = 1  # Default to singlet
 
-    model_name = "uma-s-1p2"
+    model_name = "uma-s-1p1"
     predictor = pretrained_mlip.get_predict_unit(model_name, device="cuda")
     calc = FAIRChemCalculator(predictor, task_name="omol")
 
@@ -203,7 +203,7 @@ def relax_gas(atoms):
 
 @job
 def gas_vibrations(atoms, mlip_energy):
-    model_name = "uma-s-1p2"
+    model_name = "uma-s-1p1"
     predictor = pretrained_mlip.get_predict_unit(model_name, device="cuda")
     atoms.calc = FAIRChemCalculator(predictor, task_name="omol")
 
