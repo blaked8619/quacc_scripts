@@ -148,8 +148,8 @@ def QHA_mp(atoms, fmax):
     phonon_calc_kwargs={
         "min_length": 20.0,
         "atom_disp": 0.01,
-        "write_total_dos": True ,
-        "write_band_structure": True
+       # "write_total_dos": True ,
+       # "write_band_structure": True
     },
     ).calc(atoms)
 
