@@ -190,7 +190,7 @@ def relax_gas(atoms):
     predictor = pretrained_mlip.get_predict_unit(model_name, device="cuda")
     calc = FAIRChemCalculator(predictor, task_name="omol")
 
-    runner = RelaxCalc(calculator = calc, optimizer = BFGS, max_steps = 100000, traj_file = "relax.traj", fmax=1e-3, relax_atoms = True, relax_cell = True)
+    runner = RelaxCalc(calculator = calc, optimizer = BFGS, max_steps = 100000, traj_file = "relax.traj", fmax=1e-3, relax_atoms = True, relax_cell = False)
     result = runner.calc(atoms)
     
     with open("relax_results.json", "w") as f:
