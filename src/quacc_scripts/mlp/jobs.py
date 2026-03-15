@@ -1,12 +1,11 @@
 import torch
 # Fix PyTorch 2.6 compatibility with e3nn
 torch.serialization.add_safe_globals([slice])
-import pickle
 import quacc
 from jobflow import job
 from jobflow_remote import submit_flow, set_run_config
 from ase.io import write
-from mace.calculators import MACECalculator
+#from mace.calculators import MACECalculator
 from ase.optimize import BFGS
 from ase.calculators.emt import EMT
 from matcalc import PhononCalc, RelaxCalc
