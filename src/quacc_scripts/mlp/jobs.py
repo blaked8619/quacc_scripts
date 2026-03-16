@@ -138,6 +138,7 @@ def QHA_mp(atoms, fmax):
     t_max=650,
     pressure=1e-4,
     fmax=fmax,
+    allow_shape_change=False, 
     max_steps=10000,
     optimizer="LBFGS",
     on_imaginary_modes="warn",
