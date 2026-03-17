@@ -139,7 +139,7 @@ def QHA_mp(atoms, fmax):
     pressure=1e-4,
     fmax=fmax,
     max_steps=10000,
-    optimizer="FIRE",
+    optimizer="BFGS",
     on_imaginary_modes="warn",
     imaginary_freq_tol=-0.1,
     fix_imaginary_attempts=1,
