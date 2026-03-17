@@ -13,7 +13,7 @@ import numpy as np
 from contextlib import redirect_stdout
 from pymatgen.core import Structure
 from ase.filters import FrechetCellFilter
-from ase.optimize import BFGS
+from ase.optimize import BFGS, FIRE2
 from fairchem.core import pretrained_mlip, FAIRChemCalculator
 import matplotlib.pyplot as plt
 
@@ -112,7 +112,7 @@ def relax_mp(atoms, fmax):
     predictor = pretrained_mlip.get_predict_unit(model_name, device="cuda")
     calc = FAIRChemCalculator(predictor, task_name="omat")
 
-    runner = RelaxCalc(calculator = calc, optimizer = BFGS, max_steps = 100000, traj_file = "relax.traj", fmax=fmax, relax_atoms = True, relax_cell = True)
+    runner = RelaxCalc(calculator = calc, optimizer = FIRE2, max_steps = 100000, traj_file = "relax.traj", fmax=fmax, relax_atoms = True, relax_cell = True)
 
     result = runner.calc(atoms)
     energy = atoms.get_potential_energy()
@@ -139,7 +139,7 @@ def QHA_mp(atoms, fmax):
     pressure=1e-4,
     fmax=fmax,
     max_steps=10000,
-    optimizer="BFGS",
+    optimizer="FIRE2",
     on_imaginary_modes="warn",
     imaginary_freq_tol=-0.1,
     fix_imaginary_attempts=1,
