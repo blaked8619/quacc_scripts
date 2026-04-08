@@ -31,12 +31,16 @@ from monty.json import MontyEncoder
 @job
 def relax_mof(atoms, model_path, fmax):
     write('POSCAR', atoms, format='vasp')
-    calc = MACECalculator(
-        model_paths=[model_path],
-        device="cuda",
-        default_dtype="float64",
-        head="pbe_d3"
-        )
+    #calc = MACECalculator(
+      #  model_paths=[model_path],
+      #  device="cuda",
+      #  default_dtype="float64",
+      #  head="pbe_d3"
+     #   )
+
+    model_name = "uma-s-1p1"
+    predictor = pretrained_mlip.get_predict_unit(model_name, device="cuda")
+    calc = FAIRChemCalculator(predictor, task_name="odac")
     
     runner = RelaxCalc(calculator = calc, optimizer = BFGS, max_steps = 100000, traj_file = "relax.traj", fmax=fmax, relax_atoms = True, relax_cell = True)
     result = runner.calc(atoms)
