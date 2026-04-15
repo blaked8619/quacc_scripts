@@ -82,6 +82,8 @@ def QHA_mof(atoms, model_path, fmax):
         "write_total_dos": True ,
         "write_band_structure": True
     },
+    write_ha_phonon=True,
+    store_ha_phonon=True
     ).calc(atoms)
     
     cp = result["heat_capacity_P"][300]  # J/mol/K
