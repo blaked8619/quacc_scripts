@@ -107,7 +107,7 @@ def QHA_mof(atoms, model_path, fmax):
            fmt="%12.3f %15.7f",
            header=header_full)
 
-    return {"thermal_properties": data}
+    return {"thermal_properties": data, "result_dict": result}
 
 
 @job
