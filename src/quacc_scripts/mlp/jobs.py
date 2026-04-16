@@ -88,16 +88,14 @@ def QHA_mof(atoms, model_path, fmax):
     
     cp = result["heat_capacity_P"][300]  # J/mol/K
     gibb = result["gibbs_free_energies"][300]
-    gibb2 = result["gibbs_free_energies"][-1]
 
-    sub_data= [cp, gibb, gibb2]
+    sub_data= [cp, gibb]
     np.savetxt("select_values.txt", sub_data)
     
     result["qha"].plot_qha()
     plt.savefig(f"QHA.png")
 
     raw_G = result["gibbs_free_energies"]
-    gibbs_energies = np.insert(raw_G, 0, np.nan)
     temperatures = result["temperatures"]
 
     data = np.column_stack((temperatures, gibbs_energies))
