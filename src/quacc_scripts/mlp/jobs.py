@@ -95,7 +95,7 @@ def QHA_mof(atoms, model_path, fmax):
     result["qha"].plot_qha()
     plt.savefig(f"QHA.png")
 
-    raw_G = result["gibbs_free_energies"]
+    gibbs_energies = result["gibbs_free_energies"]
     temperatures = result["temperatures"]
 
     data = np.column_stack((temperatures, gibbs_energies))
