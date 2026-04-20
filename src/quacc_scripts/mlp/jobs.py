@@ -105,7 +105,28 @@ def QHA_mof(atoms, model_path, fmax):
            fmt="%12.3f %15.7f",
            header=header_full)
 
-    return {"thermal_properties": data, "result_dict": result}
+    for i, ha_result in enumerate(result["ha"]):
+        volume_index = i
+        scale_factor = result["scale_factors"][i]
+        phonopy_obj = ha_result["phonon"]
+        mesh_dict   = phonopy_obj.get_mesh_dict()
+        frequencies_all = mesh_dict["frequencies"]
+        qpoints = mesh_dict['qpoints']
+
+        np.savetxt(f"all_frequencies_vol_{volume_index}_scale_{scale_factor:.3f}.txt", frequencies_all.flatten(),
+        header=f"All frequencies from mesh (THz), volume {volume_index}, scale {scale_factor:.3f}")
+
+    # Or save with q-point info
+        with open(f"frequencies_by_qpoint_vol_{volume_index}_scale_{scale_factor:.3f}.txt", "w") as f:
+            f.write(f"# Volume {volume_index}, scale {scale_factor:.3f}\n")
+            f.write("# q-point_index  qx  qy  qz  frequencies(THz)\n")
+            for q_indx, (qpt, freqs) in enumerate(zip(qpoints, frequencies_all)):
+                f.write(f"{i}  {qpt[0]:.6f}  {qpt[1]:.6f}  {qpt[2]:.6f}  ")
+                f.write("  ".join(f"{freq:.6f}" for freq in freqs))
+                f.write("\n")
+
+    
+    return {"thermal_properties": data}
 
 
 @job
