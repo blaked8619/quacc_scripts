@@ -17,16 +17,21 @@ import time
 from ase.io import Trajectory
 import numpy as np
 import sys
+from pymatgen.io.ase import AseAtomsAdaptor
 
 from jobflow import job
 
+adaptor = AseAtomsAdaptor()
+GPa_to_eV_A3 = 0.0062415
+
 @job
-def nvt_sim(atoms, checkpoint_path):
+def nvt_sim(structure, checkpoint_path):
+  atoms = adaptor.get_atoms(structure) * (2,2,2)
+  
   predictor = load_predict_unit(checkpoint_path+"inference_ckpt.pt")
   calc = FAIRChemCalculator(predictor, task_name="odac")
-
-  atoms = atoms *(2,2,2)
   atoms.calc = calc
+  
   BFGS(atoms).run(fmax=0.01)
 
   # ── Convergence parameters ────────────────────────────────────────────────────  
@@ -96,8 +101,6 @@ def npt_sim(atoms, checkpoint_path):
   calc = FAIRChemCalculator(predictor, task_name="odac")
   atoms.calc = calc
 
-  GPa_to_eV_A3 = 0.0062415
-
   dyn = MTKNPT(
     atoms=atoms,
     timestep=1*fs,
@@ -121,8 +124,6 @@ def spring_sim(atoms, checkpoint_path):
   predictor = load_predict_unit(checkpoint_path+"inference_ckpt.pt")
   calc = FAIRChemCalculator(predictor, task_name="odac")
   atoms.calc = calc
-
-  GPa_to_eV_A3 = 0.0062415
   
   dyn = MTKNPT(
     atoms=atoms,
