@@ -112,7 +112,7 @@ def npt_sim(atoms, checkpoint_path):
   elapsed = time.time() - start
 
   print(f"NPT took {elapsed:.1f} s ({elapsed/60:.2f} min)")
-  return atoms
+  return {"output_atoms": atoms}
 
 @job
 def spring_sim(atoms, checkpoint_path):
@@ -136,7 +136,7 @@ def spring_sim(atoms, checkpoint_path):
   elapsed = time.time() - start
 
   print(f"Spring took {elapsed:.1f} s ({elapsed/60:.2f} min)")
-  return atoms
+  return {"output_atoms": atoms}
 
 
   
