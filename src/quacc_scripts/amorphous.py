@@ -65,7 +65,7 @@ def nvt_sim(atoms, checkpoint_path):
     timestep=1.0*fs,
     temperature_K=300,
     friction=1e-2,
-    logfile="-",
+    logfile="npt_log.log",
   )
   traj = Trajectory("md.traj", "w", atoms)
   dyn.attach(traj.write,          interval=50)
@@ -96,6 +96,8 @@ def npt_sim(atoms, checkpoint_path):
   calc = FAIRChemCalculator(predictor, task_name="odac")
   atoms.calc = calc
 
+  GPa_to_eV_A3 = 0.0062415
+
   dyn = MTKNPT(
     atoms=atoms,
     timestep=1*fs,
@@ -103,7 +105,7 @@ def npt_sim(atoms, checkpoint_path):
     pressure_au =  0.5*GPa_to_eV_A3, #eV/Ang^3
     tdamp = 100 * fs,
     pdamp = 1000 * fs,
-    logfile="-",
+    logfile="npt_log.log",
     trajectory = "md_npt.traj"
     )
 
@@ -119,6 +121,8 @@ def spring_sim(atoms, checkpoint_path):
   predictor = load_predict_unit(checkpoint_path+"inference_ckpt.pt")
   calc = FAIRChemCalculator(predictor, task_name="odac")
   atoms.calc = calc
+
+  GPa_to_eV_A3 = 0.0062415
   
   dyn = MTKNPT(
     atoms=atoms,
@@ -127,7 +131,7 @@ def spring_sim(atoms, checkpoint_path):
     pressure_au =  0.0001*GPa_to_eV_A3, #eV/Ang^3
     tdamp = 100 * fs,
     pdamp = 1000 * fs,
-    logfile="-",
+    logfile="spring_log.log",
     trajectory = "md_spring.traj"
     )
 
