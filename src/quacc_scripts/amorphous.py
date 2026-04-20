@@ -140,7 +140,7 @@ def spring_sim(atoms, checkpoint_path):
     )
 
   start = time.time()
-  dyn.run(steps=5000)
+  dyn.run(steps=10000)
   elapsed = time.time() - start
 
   print(f"Spring took {elapsed:.1f} s ({elapsed/60:.2f} min)")
