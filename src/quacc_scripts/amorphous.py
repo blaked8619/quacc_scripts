@@ -99,7 +99,7 @@ def nvt_sim(structure, checkpoint_path):
   return {"output_atoms": atoms}
 
 @job
-def npt_sim(atoms, checkpoint_path):
+def npt_sim(atoms, checkpoint_path, pressure):
   predictor = load_predict_unit(checkpoint_path+"inference_ckpt.pt")
   calc = FAIRChemCalculator(predictor, task_name="odac")
   atoms.calc = calc
@@ -108,7 +108,7 @@ def npt_sim(atoms, checkpoint_path):
     atoms=atoms,
     timestep=1*fs,
     temperature_K = 300, #K
-    pressure_au =  0.5*GPa_to_eV_A3, #eV/Ang^3
+    pressure_au =  pressure*GPa_to_eV_A3, #eV/Ang^3
     tdamp = 100 * fs,
     pdamp = 1000 * fs,
     logfile="npt_log.log",
