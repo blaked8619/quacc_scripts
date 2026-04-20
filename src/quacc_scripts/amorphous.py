@@ -88,7 +88,7 @@ def nvt_sim(atoms, checkpoint_path):
   np.save("momenta.npy", momenta)
 
   atoms.set_constraint([])
-  return atoms
+  return {"output_atoms": atoms}
 
 @job
 def npt_sim(atoms, checkpoint_path):
