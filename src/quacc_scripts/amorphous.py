@@ -147,5 +147,23 @@ def spring_sim(atoms, checkpoint_path):
   return {"output_atoms": atoms}
 
 
+@job
+def relax_mof(atoms, checkpoint_path, fmax):
+    write('POSCAR', atoms, format='vasp')
+
+    predictor = load_predict_unit(checkpoint_path+"inference_ckpt.pt")
+    calc = FAIRChemCalculator(predictor, task_name="odac")
+    atoms.calc = calc
+    
+    runner = RelaxCalc(calculator = calc, optimizer = BFGS, max_steps = 100000, traj_file = "relax.traj", fmax=fmax, relax_atoms = True, relax_cell = True)
+    result = runner.calc(atoms)
+    energy = atoms.get_potential_energy()
+
+    with open("relax_results.json", "w") as f:
+        json.dump(result, f, cls=MontyEncoder, indent=2)
+        
+    write('CONTCAR', atoms, format='vasp')
+
+    return {"output_atoms": atoms, "energy": energy}
   
   
