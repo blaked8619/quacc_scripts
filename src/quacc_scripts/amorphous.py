@@ -4,7 +4,7 @@ torch.serialization.add_safe_globals([slice])
 
 from fairchem.core.units.mlip_unit import load_predict_unit
 from fairchem.core import FAIRChemCalculator
-from ase.io import read
+from ase.io import read, write
 from ase.visualize import view
 from ase.optimize import BFGS
 from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
