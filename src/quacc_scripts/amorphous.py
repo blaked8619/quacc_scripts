@@ -22,6 +22,8 @@ from jobflow import Flow, job
 from jobflow.core.job import Job
 from jobflow_remote import submit_flow, set_run_config
 from monty.serialization import loadfn, dumpfn
+from matcalc import PhononCalc, RelaxCalc
+import json
 
 adaptor = AseAtomsAdaptor()
 GPa_to_eV_A3 = 0.0062415
