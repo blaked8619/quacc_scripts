@@ -165,8 +165,6 @@ def relax_mof(atoms, checkpoint_path, fmax):
     dyn.run(fmax=fmax)
     
     energy = atoms.get_potential_energy()
-
-
     write('CONTCAR', atoms, format='vasp')
 
     atoms.info = {}
