@@ -25,6 +25,7 @@ from monty.serialization import loadfn, dumpfn
 from matcalc import PhononCalc, RelaxCalc
 import json
 from monty.json import MontyEncoder
+from ase.filters import FrechetCellFilter
 
 adaptor = AseAtomsAdaptor()
 GPa_to_eV_A3 = 0.0062415
@@ -157,16 +158,18 @@ def relax_mof(atoms, checkpoint_path, fmax):
     predictor = load_predict_unit(checkpoint_path+"inference_ckpt.pt")
     calc = FAIRChemCalculator(predictor, task_name="odac")
     atoms.calc = calc
+
+    filtered_atoms = FrechetCellFilter(atoms)
+
+    dyn = BFGS(filtered_atoms, trajectory='relaxation.traj', logfile='relax.log')
+    dyn.run(fmax=fmax)
     
-    runner = RelaxCalc(calculator = calc, optimizer = BFGS, max_steps = 100000, traj_file = "relax.traj", fmax=fmax, relax_atoms = True, relax_cell = True)
-    result = runner.calc(atoms)
     energy = atoms.get_potential_energy()
 
-    with open("relax_results.json", "w") as f:
-        json.dump(result, f, cls=MontyEncoder, indent=2)
-        
+
     write('CONTCAR', atoms, format='vasp')
 
+    atoms.info = {}
     return {"output_atoms": atoms, "energy": energy}
 
 @job
