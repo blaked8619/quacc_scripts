@@ -246,7 +246,7 @@ def nvt_sim_random(structure, checkpoint_path, random_number):
 @job
 def single_point(atoms, checkpoint_path):
 
-  predictor = load_predict_unit(checkpoint_path+"inference_ckpt.pt")
+  predictor = load_predict_unit(checkpoint_path+"inference_ckpt.pt", cpu=True)
   calc = FAIRChemCalculator(predictor, task_name="odac")
   atoms.calc = calc
 
