@@ -242,5 +242,18 @@ def nvt_sim_random(structure, checkpoint_path, random_number):
   atoms.set_constraint([])
   atoms.info = {}
   return {"output_atoms": atoms}
+
+@job
+def single_point(atoms, checkpoint_path):
+
+  predictor = load_predict_unit(checkpoint_path+"inference_ckpt.pt")
+  calc = FAIRChemCalculator(predictor, task_name="odac")
+  atoms.calc = calc
+
+  energy = atoms.get_potential_energy()
+  forces = atoms.get_forces()
+  stress = atoms.get_stress(voigt=True)
+
+  max_force = np.max(np.linalg.norm(forces, axis = 1))
   
-  
+  return {"energy": float(energy), "forces": forces.tolist(), "stress": stress.tolist(), "max_force": float(max_force)}
