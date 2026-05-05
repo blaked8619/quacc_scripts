@@ -248,7 +248,7 @@ def single_point(structure, checkpoint_path):
   atoms = AseAtomsAdaptor().get_atoms(structure)  # convert back inside job
   
   predictor = load_predict_unit(checkpoint_path+"inference_ckpt.pt")
-  calc = FAIRChemCalculator(predictor, task_name="odac", device="cpu")
+  calc = FAIRChemCalculator(predictor, task_name="odac")
   atoms.calc = calc
 
   energy = atoms.get_potential_energy()
