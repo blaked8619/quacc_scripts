@@ -244,8 +244,9 @@ def nvt_sim_random(structure, checkpoint_path, random_number):
   return {"output_atoms": atoms}
 
 @job
-def single_point(atoms, checkpoint_path):
-
+def single_point(structure, checkpoint_path):
+  atoms = AseAtomsAdaptor().get_atoms(structure)  # convert back inside job
+  
   predictor = load_predict_unit(checkpoint_path+"inference_ckpt.pt", cpu=True)
   calc = FAIRChemCalculator(predictor, task_name="odac")
   atoms.calc = calc
