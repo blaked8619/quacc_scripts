@@ -2,7 +2,8 @@ import torch
 import torch.serialization
 torch.serialization.add_safe_globals([slice])
 
-
+from fairchem.core import pretrained_mlip, FAIRChemCalculator
+from fairchem.core.units.mlip_unit.__init__ import load_predict_unit
 
 from ase.io import read, write
 from ase.visualize import view
@@ -250,12 +251,9 @@ def single_point(structure, checkpoint_path, taskname):
   from fairchem.core.common.relaxation.ase_utils import OCPCalculator
   atoms = AseAtomsAdaptor().get_atoms(structure)  # convert back inside job
 
-  calc = OCPCalculator(
-        checkpoint_path=checkpoint_path + "inference_ckpt.pt",
-    trainer = "forces"
-    )
-  #predictor = load_predict_unit(checkpoint_path+"inference_ckpt.pt")
-  #calc = FAIRChemCalculator(predictor, task_name=taskname)
+
+  predictor = load_predict_unit(checkpoint_path+"inference_ckpt.pt")
+  calc = FAIRChemCalculator(predictor, task_name=taskname)
   atoms.calc = calc
 
   energy = atoms.get_potential_energy()
