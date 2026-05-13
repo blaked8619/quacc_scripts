@@ -251,7 +251,8 @@ def single_point(structure, checkpoint_path, taskname):
   atoms = AseAtomsAdaptor().get_atoms(structure)  # convert back inside job
 
   calc = OCPCalculator(
-        checkpoint_path=checkpoint_path + "inference_ckpt.pt"
+        checkpoint_path=checkpoint_path + "inference_ckpt.pt",
+    trainer = "forces"
     )
   #predictor = load_predict_unit(checkpoint_path+"inference_ckpt.pt")
   #calc = FAIRChemCalculator(predictor, task_name=taskname)
