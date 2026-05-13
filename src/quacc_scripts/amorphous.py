@@ -27,7 +27,7 @@ import json
 from monty.json import MontyEncoder
 from ase.filters import FrechetCellFilter
 
-from fairchem.core import OCPCalculator
+from fairchem.core.common.relaxation.ase_utils import OCPCalculator
 
 adaptor = AseAtomsAdaptor()
 GPa_to_eV_A3 = 0.0062415
