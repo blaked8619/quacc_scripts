@@ -31,9 +31,11 @@ def single_point(structure, checkpoint_path, taskname):
   from fairchem.core.common.relaxation.ase_utils import OCPCalculator
   atoms = AseAtomsAdaptor().get_atoms(structure)  # convert back inside job
 
-
-  predictor = load_predict_unit(checkpoint_path+"inference_ckpt.pt")
-  calc = FAIRChemCalculator(predictor, task_name=taskname)
+  calc = OCPCalculator(
+        checkpoint_path=checkpoint_path + "inference_ckpt.pt",
+    trainer = "forces"
+    )
+  
   atoms.calc = calc
 
   energy = atoms.get_potential_energy()
