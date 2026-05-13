@@ -3,7 +3,7 @@ import torch.serialization
 torch.serialization.add_safe_globals([slice])
 
 from fairchem.core import pretrained_mlip, FAIRChemCalculator
-from fairchem.core.units.mlip_unit.__init__ import load_predict_unit
+from fairchem.core.units.mlip_unit import load_predict_unit
 
 from ase.io import read, write
 from ase.visualize import view
