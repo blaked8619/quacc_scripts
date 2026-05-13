@@ -27,6 +27,8 @@ import json
 from monty.json import MontyEncoder
 from ase.filters import FrechetCellFilter
 
+from fairchem.core import OCPCalculator
+
 adaptor = AseAtomsAdaptor()
 GPa_to_eV_A3 = 0.0062415
 
@@ -246,9 +248,12 @@ def nvt_sim_random(structure, checkpoint_path, random_number):
 @job
 def single_point(structure, checkpoint_path, taskname):
   atoms = AseAtomsAdaptor().get_atoms(structure)  # convert back inside job
-  
-  predictor = load_predict_unit(checkpoint_path+"inference_ckpt.pt")
-  calc = FAIRChemCalculator(predictor, task_name=taskname)
+
+  calc = OCPCalculator(
+        checkpoint_path=checkpoint_path + "inference_ckpt.pt"
+    )
+  #predictor = load_predict_unit(checkpoint_path+"inference_ckpt.pt")
+  #calc = FAIRChemCalculator(predictor, task_name=taskname)
   atoms.calc = calc
 
   energy = atoms.get_potential_energy()
