@@ -4,15 +4,8 @@ torch.serialization.add_safe_globals([slice])
 
 from ase.io import read, write
 from ase.visualize import view
-from ase.optimize import BFGS
 from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
 from ase.md.velocitydistribution import Stationary
-from ase.md.langevin import Langevin
-from ase.md.nose_hoover_chain import MTKNPT
-from ase.units import fs, kB
-from ase.constraints import FixCom
-import time
-from ase.io import Trajectory
 import numpy as np
 import sys
 
@@ -24,7 +17,6 @@ from monty.serialization import loadfn, dumpfn
 
 import json
 from monty.json import MontyEncoder
-from ase.filters import FrechetCellFilter
 
 @job
 def single_point(structure, checkpoint_path, taskname):
