@@ -3,7 +3,7 @@ import torch.serialization
 torch.serialization.add_safe_globals([slice])
 
 
-from fairchem.core import FAIRChemCalculator
+
 from ase.io import read, write
 from ase.visualize import view
 from ase.optimize import BFGS
