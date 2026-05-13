@@ -32,8 +32,7 @@ def single_point(structure, checkpoint_path, taskname):
   atoms = AseAtomsAdaptor().get_atoms(structure)  # convert back inside job
 
   calc = OCPCalculator(
-        checkpoint_path=checkpoint_path + "inference_ckpt.pt",
-    trainer = "forces"
+        checkpoint_path=checkpoint_path + "inference_ckpt.pt"
     )
   
   atoms.calc = calc
