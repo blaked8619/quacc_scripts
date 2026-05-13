@@ -248,7 +248,6 @@ def nvt_sim_random(structure, checkpoint_path, random_number):
 
 @job
 def single_point(structure, checkpoint_path, taskname):
-  from fairchem.core.common.relaxation.ase_utils import OCPCalculator
   atoms = AseAtomsAdaptor().get_atoms(structure)  # convert back inside job
 
 
