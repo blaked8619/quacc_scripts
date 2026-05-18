@@ -18,15 +18,20 @@ from monty.serialization import loadfn, dumpfn
 import json
 from monty.json import MontyEncoder
 
+from ase.calculators.mixing import SumCalculator
+from torch_dftd.torch_dftd3_calculator import TorchDFTD3Calculator
+
 @job
 def single_point(structure, checkpoint_path, taskname):
   from fairchem.core.common.relaxation.ase_utils import OCPCalculator
   atoms = AseAtomsAdaptor().get_atoms(structure)  # convert back inside job
 
-  calc = OCPCalculator(
+  ocp = OCPCalculator(
         checkpoint_path=checkpoint_path + "inference_ckpt.pt"
     )
-  
+  pbe_d3 = TorchDFTD3Calculator(device="cpu", xc="pbe", damping="bj")
+  calc = SumCalculaotr([ocp, pbe_d3])
+    
   atoms.calc = calc
 
   energy = atoms.get_potential_energy()
