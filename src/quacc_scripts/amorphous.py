@@ -36,8 +36,9 @@ GPa_to_eV_A3 = 0.0062415
 @job
 def nvt_sim(structure, checkpoint_path):
   atoms = adaptor.get_atoms(structure) * (2,2,2)
-  
-  predictor = load_predict_unit(checkpoint_path+"inference_ckpt.pt")
+
+  device = "cuda" if torch.cuda.is_available() else "cpu"
+  predictor = load_predict_unit(checkpoint_path+"inference_ckpt.pt", device=device)
   calc = FAIRChemCalculator(predictor, task_name="odac")
   atoms.calc = calc
   
