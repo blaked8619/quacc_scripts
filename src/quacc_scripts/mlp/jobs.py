@@ -10,10 +10,8 @@ from ase.calculators.emt import EMT
 from matcalc import PhononCalc, RelaxCalc
 import numpy as np
 from contextlib import redirect_stdout
-from pymatgen.core import Structure
 from ase.filters import FrechetCellFilter
 from ase.optimize import BFGS, FIRE2
-import matplotlib.pyplot as plt
 
 from ase.thermochemistry import IdealGasThermo
 from ase.vibrations import Vibrations
