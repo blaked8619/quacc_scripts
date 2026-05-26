@@ -130,24 +130,23 @@ def QHA_mof(atoms, model_path, fmax):
 
 
 @job
-def relax_mp(atoms, fmax):
+def relax_mp(atoms, calc, fmax):
     write('POSCAR', atoms, format='vasp')
 
-    model_name = "uma-s-1p1"
-    predictor = pretrained_mlip.get_predict_unit(model_name, device="cuda")
-    calc = FAIRChemCalculator(predictor, task_name="omat")
+    #model_name = "uma-s-1p1"
+    #predictor = pretrained_mlip.get_predict_unit(model_name, device="cuda")
+    #calc = FAIRChemCalculator(predictor, task_name="omat")
 
-    runner = RelaxCalc(calculator = calc, optimizer = FIRE2, max_steps = 100000, traj_file = "relax.traj", fmax=fmax, relax_atoms = True, relax_cell = True)
+    filtered_atoms = FrechetCellFilter(atoms)
 
-    result = runner.calc(atoms)
+    dyn = BFGS(filtered_atoms, trajectory='relaxation.traj', logfile='relax.log')
+    dyn.run(fmax=fmax)
+
     energy = atoms.get_potential_energy()
-
-
-    with open("relax_results.json", "w") as f:
-        json.dump(result, f, cls=MontyEncoder, indent=2)
         
     write('CONTCAR', atoms, format='vasp')
-
+    atoms.info = {}
+    
     return {"output_atoms": atoms, "energy": energy}
 
 @job
