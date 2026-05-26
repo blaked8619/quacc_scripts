@@ -24,10 +24,23 @@ from matcalc._qha import QHACalc
 import json
 from monty.json import MontyEncoder
 
+def choose_calc(calc_name):
+    if calc_name == "equiformer":
+        from fairchem.core.common.relaxation.ase_utils import OCPCalculator
+        from torch_dftd.torch_dftd3_calculator import TorchDFTD3Calculator
+        from ase.calculators.mixing import SumCalculator
 
+        checkpoint_path = "/scratch/gpfs/ROSENGROUP/bd8619/checkpoints/EquiformerV3+DeNS-OAM_omat_mptrj_salex/"
+
+        ocp    = OCPCalculator(checkpoint_path=checkpoint_path + "inference_ckpt.pt", cpu=False)
+        pbe_d3 = TorchDFTD3Calculator(device="cuda", xc="pbe", damping="bj")
+        calc   = SumCalculator([ocp, pbe_d3])
+    return calc
 
 @job
-def QHA_material(atoms, calc, fmax):
+def QHA_material(atoms, calc_name, fmax):
+
+    calc = choose_calc(calc_name)
     
     result = QHACalc(
     calc,
@@ -95,9 +108,12 @@ def QHA_material(atoms, calc, fmax):
 
 
 @job
-def relax_material(atoms, calc, fmax):
+def relax_material(atoms, calc_name, fmax):
     write('POSCAR', atoms, format='vasp')
 
+    calc = choose_calc(calc_name)
+    atoms.calc = calc
+    
     filtered_atoms = FrechetCellFilter(atoms)
 
     dyn = BFGS(filtered_atoms, trajectory='relaxation.traj', logfile='relax.log')
