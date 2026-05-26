@@ -5,7 +5,6 @@ torch.serialization.add_safe_globals([slice])
 from jobflow import job
 from jobflow_remote import submit_flow, set_run_config
 from ase.io import write
-from mace.calculators import MACECalculator
 from ase.optimize import BFGS
 from ase.calculators.emt import EMT
 from matcalc import PhononCalc, RelaxCalc
@@ -14,7 +13,6 @@ from contextlib import redirect_stdout
 from pymatgen.core import Structure
 from ase.filters import FrechetCellFilter
 from ase.optimize import BFGS, FIRE2
-from fairchem.core import pretrained_mlip, FAIRChemCalculator
 import matplotlib.pyplot as plt
 
 from ase.thermochemistry import IdealGasThermo
