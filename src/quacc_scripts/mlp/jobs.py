@@ -28,42 +28,11 @@ from matcalc._qha import QHACalc
 import json
 from monty.json import MontyEncoder
 
-@job
-def relax_mof(atoms, model_path, fmax):
-    write('POSCAR', atoms, format='vasp')
-    calc = MACECalculator(
-       model_paths=[model_path],
-        device="cuda",
-        default_dtype="float64",
-        head="pbe_d3"
-    )
-
-    #model_name = "uma-s-1p1"
-    #predictor = pretrained_mlip.get_predict_unit(model_name, device="cuda")
-    #calc = FAIRChemCalculator(predictor, task_name="odac")
-    
-    runner = RelaxCalc(calculator = calc, optimizer = BFGS, max_steps = 100000, traj_file = "relax.traj", fmax=fmax, relax_atoms = True, relax_cell = True)
-    result = runner.calc(atoms)
-    energy = atoms.get_potential_energy()
-
-    with open("relax_results.json", "w") as f:
-        json.dump(result, f, cls=MontyEncoder, indent=2)
-        
-    write('CONTCAR', atoms, format='vasp')
-
-    return {"output_atoms": atoms, "energy": energy}
 
 
 @job
-def QHA_mof(atoms, model_path, fmax):
+def QHA_material(atoms, calc, fmax):
     
-    calc = MACECalculator(
-        model_paths=[model_path],
-        device="cuda",
-        default_dtype="float64",
-        head="pbe_d3"
-        )
-
     result = QHACalc(
     calc,
     t_step=1,
@@ -130,12 +99,8 @@ def QHA_mof(atoms, model_path, fmax):
 
 
 @job
-def relax_mp(atoms, calc, fmax):
+def relax_material(atoms, calc, fmax):
     write('POSCAR', atoms, format='vasp')
-
-    #model_name = "uma-s-1p1"
-    #predictor = pretrained_mlip.get_predict_unit(model_name, device="cuda")
-    #calc = FAIRChemCalculator(predictor, task_name="omat")
 
     filtered_atoms = FrechetCellFilter(atoms)
 
@@ -148,47 +113,6 @@ def relax_mp(atoms, calc, fmax):
     atoms.info = {}
     
     return {"output_atoms": atoms, "energy": energy}
-
-@job
-def QHA_mp(atoms, fmax):
-  
-    model_name = "uma-s-1p1"
-    predictor = pretrained_mlip.get_predict_unit(model_name, device = "cuda")
-    calc = FAIRChemCalculator(predictor, task_name="omat")
-
-    result = QHACalc(
-    calc,
-    t_step=1,
-    t_max=650,
-    pressure=1e-4,
-    fmax=fmax,
-    max_steps=10000,
-    optimizer="FIRE2",
-    on_imaginary_modes="warn",
-    imaginary_freq_tol=-0.1,
-    fix_imaginary_attempts=1,
-    scale_factors=tuple(np.arange(0.97, 1.03, 0.01).tolist()),
-    phonon_calc_kwargs={
-        "min_length": 20.0,
-        "atom_disp": 0.01,
-       # "write_total_dos": True ,
-       # "write_band_structure": True
-    },
-    ).calc(atoms)
-
-    raw_G = result["gibbs_free_energies"]
-    gibbs_energies = np.insert(raw_G, 0, np.nan)
-    temperatures = result["temperatures"]
-
-    data = np.column_stack((temperatures, gibbs_energies))
-
-    header_full = "T (K)          Gibbs(eV)     "
-    np.savetxt("thermal_properties_full.txt", data,
-           fmt="%12.3f %15.7f",
-           header=header_full)
-
-    return {"thermal_properties": data}
-
 
 @job
 def relax_gas(atoms):
