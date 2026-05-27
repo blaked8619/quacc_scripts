@@ -25,7 +25,7 @@ from matcalc._qha import QHACalc
 import json
 from monty.json import MontyEncoder
 
-def choose_calc(calc_name):
+def choose_calc(calc_name, atoms):
     if calc_name == "equiformer":
         from fairchem.core.common.relaxation.ase_utils import OCPCalculator
         from torch_dftd.torch_dftd3_calculator import TorchDFTD3Calculator
@@ -44,6 +44,7 @@ def choose_calc(calc_name):
         
         calc = Vasp(
         # Critical parameters
+        input_atoms= atoms,
         xc="PBE",  # exchange-correlation functional ("level of theory"); sets GGA = PE here
         encut=520,  # plane-wave kinetic energy cutoff (convergence parameter)
         kspacing=0.4,  # k-point density (convergence parameter)
@@ -70,7 +71,7 @@ def choose_calc(calc_name):
 @job
 def QHA_material(atoms, calc_name, fmax):
 
-    calc = choose_calc(calc_name)
+    calc = choose_calc(calc_name, atoms)
     
     result = QHACalc(
     calc,
@@ -141,7 +142,7 @@ def QHA_material(atoms, calc_name, fmax):
 def relax_material(atoms, calc_name, fmax):
     write('POSCAR', atoms, format='vasp')
 
-    calc = choose_calc(calc_name)
+    calc = choose_calc(calc_name, atoms)
     atoms.calc = calc
     
     filtered_atoms = FrechetCellFilter(atoms)
