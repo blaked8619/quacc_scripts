@@ -36,7 +36,11 @@ def choose_calc(calc_name):
         pbe_d3 = TorchDFTD3Calculator(device="cuda", xc="pbe", damping="bj")
         calc   = SumCalculator([ocp, pbe_d3])
     elif calc_name == "vasp":
+        import os
+        os.environ["ASE_VASP_COMMAND"] = "srun vasp_std"
+        os.environ["VASP_PP_PATH"] = "/home/ROSENGROUP/software/vasp/vasp_potcars/potpaw_PBE.64/"
         from ase.calculators.vasp import Vasp
+        
         calc = Vasp(
         # Critical parameters
         xc="PBE",  # exchange-correlation functional ("level of theory"); sets GGA = PE here
@@ -46,12 +50,12 @@ def choose_calc(calc_name):
         # Important details
         isif=3,  # relaxation degrees of freedom (3 = relax positions+cell shape+cell volume)
         ediffg=-1e-4,  # relaxation convergence criterion (eV/A)
-        nsw=500,  # maximum number of relaxation steps
+        nsw=0,  # maximum number of relaxation steps
         # Additional parameters
         prec="accurate",  # high-precision calculations
         ediff=1e-5,  # SCF convergence criterion (eV)
         algo="fast",  # SCF convergence algorithm
-        ibrion=2,  # relaxation algorithm (2 = conjugate-gradient)
+        ibrion=-1,  # relaxation algorithm (2 = conjugate-gradient)
         ismear=0,  # smearing method (0 = Gaussian smearing)
         sigma=0.05,  # smearing width (eV)
         lorbit=11,  # print out magnetic moments
