@@ -40,7 +40,7 @@ def choose_calc(calc_name):
         import os
         os.environ["ASE_VASP_COMMAND"] = "srun vasp_std"
         os.environ["VASP_PP_PATH"] = "/home/ROSENGROUP/software/vasp/vasp_potcars/"
-        from ase.calculators.vasp import Vasp
+        from quacc.calculators.vasp import Vasp
         
         calc = Vasp(
         # Critical parameters
