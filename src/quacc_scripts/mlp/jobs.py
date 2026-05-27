@@ -38,7 +38,7 @@ def choose_calc(calc_name):
     elif calc_name == "vasp":
         import os
         os.environ["ASE_VASP_COMMAND"] = "srun vasp_std"
-        os.environ["VASP_PP_PATH"] = "/home/ROSENGROUP/software/vasp/vasp_potcars/potpaw_PBE.64/"
+        os.environ["VASP_PP_PATH"] = "/home/ROSENGROUP/software/vasp/vasp_potcars/"
         from ase.calculators.vasp import Vasp
         
         calc = Vasp(
