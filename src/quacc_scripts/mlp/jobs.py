@@ -25,6 +25,11 @@ from matcalc._qha import QHACalc
 import json
 from monty.json import MontyEncoder
 
+import logging
+logging.basicConfig(level=logging.INFO)
+
+import time
+
 def choose_calc(calc_name, atoms):
     if calc_name == "equiformer":
         from fairchem.core.common.relaxation.ase_utils import OCPCalculator
@@ -36,6 +41,7 @@ def choose_calc(calc_name, atoms):
         ocp    = OCPCalculator(checkpoint_path=checkpoint_path + "inference_ckpt.pt", cpu=False)
         pbe_d3 = TorchDFTD3Calculator(device="cuda", xc="pbe", damping="bj")
         calc   = SumCalculator([ocp, pbe_d3])
+    
     elif calc_name == "vasp":
         import os
         os.environ["ASE_VASP_COMMAND"] = "srun vasp_std"
@@ -66,11 +72,17 @@ def choose_calc(calc_name, atoms):
         gga_compat=False,  # recommended by VASP
         )
 
+    elif calc_name == "UMA_OMAT":
+        model_name = "uma-s-1p2"
+        predictor = pretrained_mlip.get_predict_unit(model_name, device="cuda")
+        calc = FAIRChemCalculator(predictor, task_name="omat")
+
     return calc
 
 @job
 def QHA_material(atoms, calc_name, fmax):
 
+    start_time = time.perf_counter()
     calc = choose_calc(calc_name, atoms)
     
     result = QHACalc(
@@ -94,6 +106,9 @@ def QHA_material(atoms, calc_name, fmax):
     write_ha_phonon=True,
     store_ha_phonon=True
     ).calc(atoms)
+
+    end_time = time.perf_counter()
+    execution_time = end_time - start_time
     
     cp = result["heat_capacity_P"][300]  # J/mol/K
     gibb = result["gibbs_free_energies"][300]
@@ -135,7 +150,7 @@ def QHA_material(atoms, calc_name, fmax):
                 f.write("\n")
 
     
-    return {"thermal_properties": data}
+    return {"thermal_properties": data, "time": execution_time}
 
 
 @job
