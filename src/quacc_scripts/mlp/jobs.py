@@ -50,7 +50,7 @@ def choose_calc(calc_name, atoms):
         os.environ["HF_HUB_OFFLINE"] = "1"
         os.environ["HF_HOME"] = "/home/bd8619/.cache/fairchem"
 
-        checkpoint = "/home/bd8619/.cache/fairchem/models--facebook--UMA/snapshots/9e0d80ebc07f0c777e14d53781e1a7dcb2fd8561/checkpoints/uma-s-1p1.pt"
+        checkpoint = "/home/bd8619/.cache/fairchem/models--facebook--UMA/snapshots/1828688e46702b707bad27ca353a7133e5cc62df/checkpoints/uma-s-1p2.pt"
         #model_name = "uma-s-1p2"
         predictor = pretrained_mlip.get_predict_unit(checkpoint, device="cuda")
         calc = FAIRChemCalculator(predictor, task_name="omat")
