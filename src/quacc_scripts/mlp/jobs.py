@@ -46,6 +46,9 @@ def choose_calc(calc_name, atoms):
 
     elif calc_name == "UMA_OMAT":
         from fairchem.core import pretrained_mlip, FAIRChemCalculator
+        import os
+        os.environ["HF_HUB_OFFLINE"] = "1"
+        
         model_name = "uma-s-1p2"
         predictor = pretrained_mlip.get_predict_unit(model_name, device="cuda")
         calc = FAIRChemCalculator(predictor, task_name="omat")
