@@ -31,18 +31,8 @@ logging.basicConfig(level=logging.INFO)
 import time
 
 def choose_calc(calc_name, atoms):
-    if calc_name == "equiformer":
-        from fairchem.core.common.relaxation.ase_utils import OCPCalculator
-        from torch_dftd.torch_dftd3_calculator import TorchDFTD3Calculator
-        from ase.calculators.mixing import SumCalculator
-
-        checkpoint_path = "/scratch/gpfs/ROSENGROUP/bd8619/checkpoints/EquiformerV3+DeNS-OAM_omat_mptrj_salex/"
-
-        ocp    = OCPCalculator(checkpoint_path=checkpoint_path + "inference_ckpt.pt", cpu=False)
-        pbe_d3 = TorchDFTD3Calculator(device="cuda", xc="pbe", damping="bj")
-        calc   = SumCalculator([ocp, pbe_d3])
     
-    elif calc_name == "vasp":
+    if calc_name == "vasp":
         import os
         os.environ["ASE_VASP_COMMAND"] = "srun vasp_std"
         os.environ["VASP_PP_PATH"] = "/home/ROSENGROUP/software/vasp/vasp_potcars/"
