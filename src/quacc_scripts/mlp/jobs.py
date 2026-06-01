@@ -45,14 +45,14 @@ def choose_calc(calc_name, atoms):
         calc = Vasp(calc_defaults)
 
     elif calc_name == "UMA_OMAT":
-        from fairchem.core import pretrained_mlip, FAIRChemCalculator
+        from fairchem.core import pretrained_mlip, FAIRChemCalculator, load_predict_unit
         import os
         os.environ["HF_HUB_OFFLINE"] = "1"
         os.environ["HF_HOME"] = "/home/bd8619/.cache/fairchem"
 
         checkpoint = "/home/bd8619/.cache/fairchem/models--facebook--UMA/snapshots/1828688e46702b707bad27ca353a7133e5cc62df/checkpoints/uma-s-1p2.pt"
         #model_name = "uma-s-1p2"
-        predictor = pretrained_mlip.get_predict_unit(checkpoint, device="cuda")
+        predictor = load_predict_unit(checkpoint, device="cuda")
         calc = FAIRChemCalculator(predictor, task_name="omat")
 
     return calc
