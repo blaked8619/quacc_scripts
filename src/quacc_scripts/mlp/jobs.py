@@ -48,6 +48,7 @@ def choose_calc(calc_name, atoms):
         from fairchem.core import pretrained_mlip, FAIRChemCalculator
         import os
         os.environ["HF_HUB_OFFLINE"] = "1"
+        os.environ["HF_HOME"] = "/home/bd8619/.cache/fairchem"
         
         model_name = "uma-s-1p2"
         predictor = pretrained_mlip.get_predict_unit(model_name, device="cuda")
