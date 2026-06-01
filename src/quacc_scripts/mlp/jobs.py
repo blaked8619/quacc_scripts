@@ -32,7 +32,7 @@ import time
 
 def choose_calc(calc_name, atoms):
     
-    if calc_name == "vasp":
+    if calc_name == "vasp_OMAT":
         import os
         os.environ["ASE_VASP_COMMAND"] = "srun vasp_std"
         
@@ -41,7 +41,6 @@ def choose_calc(calc_name, atoms):
 
         calc_defaults = MPtoASEConverter(atoms=atoms).convert_input_set(OMat24StaticSet())
         calc_defaults |= {"pp_version": "54", "incar_copilot": "light"}
-        
         
         calc = Vasp(calc_defaults)
 
