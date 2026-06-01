@@ -45,7 +45,7 @@ def choose_calc(calc_name, atoms):
         calc = Vasp(calc_defaults)
 
     elif calc_name == "UMA_OMAT":
-        from fairchem.core import pretrained_mlip, FAIRChemCalculator, 
+        from fairchem.core import pretrained_mlip, FAIRChemCalculator
         from fairchem.core.units.mlip_unit import load_predict_unit
         import os
         os.environ["HF_HUB_OFFLINE"] = "1"
