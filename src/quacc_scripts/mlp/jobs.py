@@ -57,6 +57,15 @@ def choose_calc(calc_name, atoms):
         from upet.calculator import UPETCalculator
         calc = UPETCalculator(checkpoint_path="/scratch/gpfs/ROSENGROUP/bd8619/checkpoints/PET-OAM-XL/pet-oam-xl-v1.0.0.ckpt", device="cuda")
 
+    elif calc_name == "MACE_MPA_0":
+        from mace.calculators import MACECalculator
+
+        calc = MACECalculator(
+        model_paths=["/scratch/gpfs/ROSENGROUP/bd8619/matgl_models/MACE-MPA-0/mace-mpa-0-medium.model"],
+        device="cuda"
+        )
+
+
     return calc
 
 @job
