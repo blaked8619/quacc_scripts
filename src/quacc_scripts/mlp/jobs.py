@@ -128,8 +128,22 @@ def QHA_material(atoms, calc_name, fmax):
                 f.write("  ".join(f"{freq:.6f}" for freq in freqs))
                 f.write("\n")
 
+        #Save phonopy mesh settings(not sure if right)
+        if i == len(result["ha"]) // 2:  # save from middle (scale~1.0) volume
+        phonopy_settings = {
+            "supercell_matrix": phonopy_obj.supercell_matrix.tolist(),
+            "mesh":             list(phonopy_obj.mesh_numbers),
+            "primitive_matrix": phonopy_obj.primitive_matrix.tolist()
+                                if hasattr(phonopy_obj.primitive_matrix, "tolist")
+                                else str(phonopy_obj.primitive_matrix),
+            "symprec":          phonopy_obj.symmetry.tolerance,
+            "atom_disp":        0.01,   # from phonon_calc_kwargs
+            "n_atoms_supercell": len(phonopy_obj.supercell),
+            "n_atoms_primitive": len(phonopy_obj.primitive),
+        }
+
     
-    return {"thermal_properties": data, "time": execution_time}
+    return {"thermal_properties": data, "time": execution_time, "phonopy_settings": phonopy_settings}
 
 
 @job
