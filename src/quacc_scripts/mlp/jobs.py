@@ -131,7 +131,7 @@ def QHA_material(atoms, calc_name, fmax):
 
         #Save phonopy mesh settings(not sure if right)
         if i == len(result["ha"]) // 2:  # save from middle (scale~1.0) volume
-        phonopy_settings = {
+            phonopy_settings = {
             "supercell_matrix": phonopy_obj.supercell_matrix.tolist(),
             "mesh":             list(phonopy_obj.mesh_numbers),
             "primitive_matrix": phonopy_obj.primitive_matrix.tolist()
