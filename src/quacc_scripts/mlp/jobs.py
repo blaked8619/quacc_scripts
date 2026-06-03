@@ -158,6 +158,7 @@ def QHA_material(atoms, calc_name, fmax):
 
 @job
 def relax_material(atoms, calc_name, fmax):
+    start_time = time.perf_counter()
     write('POSCAR', atoms, format='vasp')
 
     calc = choose_calc(calc_name, atoms)
@@ -172,8 +173,11 @@ def relax_material(atoms, calc_name, fmax):
         
     write('CONTCAR', atoms, format='vasp')
     atoms.info = {}
+
+    end_time = time.perf_counter()
+    execution_time = end_time - start_time
     
-    return {"output_atoms": atoms, "energy": energy}
+    return {"output_atoms": atoms, "energy": energy, "time": execution_time}
 
 @job
 def relax_gas(atoms):
