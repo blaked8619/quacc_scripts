@@ -61,7 +61,7 @@ def choose_calc(calc_name, atoms):
         from mace.calculators import MACECalculator
 
         calc = MACECalculator(
-        model_paths=["/scratch/gpfs/ROSENGROUP/bd8619/matgl_models/MACE-MPA-0/mace-mpa-0-medium.model"],
+        model_paths=["/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MPA-0/mace-mpa-0-medium.model"],
         device="cuda"
         )
 
