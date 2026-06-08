@@ -69,14 +69,20 @@ def choose_calc(calc_name, atoms):
         device="cuda"
         )
 
+    elif calc_name == "MACE_MATPES_r2SCAN_0":
+        from mace.calculators import MACECalculator
+
+        calc = MACECalculator(
+        model_paths=["/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MATPES-r2SCAN-0/MACE-matpes-r2scan-omat-ft.model"],
+        device="cuda"
+        )
+    
     elif calc_name = "TensorNet_MatPES_r2SCAN":
         import matgl
         from matgl.ext.ase import PESCalculator
         
         model = matgl.load_model("/home/bd8619/.cache/matgl/models--materialyze--TensorNet-PES-MatPES-r2SCAN-2025.2-m/snapshots/0e4ef6457eb41db1e8b957bed9337fd4fbac3d89/")
         calc = PESCalculator(potential=model)
-
-    
 
     return calc
 
