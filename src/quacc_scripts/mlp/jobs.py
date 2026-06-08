@@ -57,6 +57,10 @@ def choose_calc(calc_name, atoms):
         from upet.calculator import UPETCalculator
         calc = UPETCalculator(checkpoint_path="/scratch/gpfs/ROSENGROUP/bd8619/checkpoints/PET-OAM-XL/pet-oam-xl-v1.0.0.ckpt", device="cuda")
 
+    elif calc_name = "PET_OMATPES_L":
+        from upet.calculator import UPETCalculator
+        calc = UPETCalculator(checkpoint_path="/scratch/gpfs/ROSENGROUP/bd8619/checkpoints/PET-OMATPES-L/pet-omatpes-l-v0.1.0.ckpt", device="cuda")
+
     elif calc_name == "MACE_MPA_0":
         from mace.calculators import MACECalculator
 
@@ -65,6 +69,14 @@ def choose_calc(calc_name, atoms):
         device="cuda"
         )
 
+    elif calc_name = "TensorNet_MatPES_r2SCAN":
+        import matgl
+        from matgl.ext.ase import PESCalculator
+        
+        model = matgl.load_model("/home/bd8619/.cache/matgl/models--materialyze--TensorNet-PES-MatPES-r2SCAN-2025.2-m/snapshots/0e4ef6457eb41db1e8b957bed9337fd4fbac3d89/")
+        calc = PESCalculator(potential=model)
+
+    
 
     return calc
 
