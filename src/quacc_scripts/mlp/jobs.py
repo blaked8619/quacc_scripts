@@ -98,7 +98,7 @@ def QHA_material(atoms, calc_name, fmax):
     t_max=1000,
     pressure=0.000101325,
     fmax=fmax,
-    max_steps=10000,
+    max_steps=100000,
     optimizer="FIRE",
     on_imaginary_modes="warn",
     imaginary_freq_tol=-0.1,
