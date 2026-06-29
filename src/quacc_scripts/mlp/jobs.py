@@ -98,7 +98,7 @@ def obtain_energy_correction(calc_name, structure):
 
     return correction
 
-def choose_calc(calc_name, atoms):
+def choose_calc(calc_name, atoms, dispersion_correction):
     
     if calc_name == "vasp_OMAT":
         import os
@@ -152,13 +152,18 @@ def choose_calc(calc_name, atoms):
         model = matgl.load_model("/home/bd8619/.cache/matgl/models--materialyze--TensorNet-PES-MatPES-r2SCAN-2025.2-m/snapshots/0e4ef6457eb41db1e8b957bed9337fd4fbac3d89/")
         calc = PESCalculator(potential=model)
 
+    if dispersion_correction=True and calc_name is in ["UMA_OMAT", "PET_OAM_XL", "MACE_MPA_0"]:
+
+    elif dispersion_correction=True and calc_name is in ["PET_OMATPES_L", "MACE_MATPES_r2SCAN_0", "TensorNet_MatPES_r2SCAN"]:
+    
+    
     return calc
 
 @job
-def QHA_material(atoms, calc_name, fmax):
+def QHA_material(atoms, calc_name, fmax, dispersion_correction=False):
 
     start_time = time.perf_counter()
-    calc = choose_calc(calc_name, atoms)
+    calc = choose_calc(calc_name, atoms, dispersion_correction)
     
     result = QHACalc(
     calc,
@@ -190,7 +195,6 @@ def QHA_material(atoms, calc_name, fmax):
 
     structure = AseAtomsAdaptor.get_structure(atoms)
     energy_correction = obtain_energy_correction(calc_name, structure)
-    
     
     gibbs_energies = result["gibbs_free_energies"] + energy_correction
     temperatures = result["temperatures"]
@@ -237,11 +241,11 @@ def QHA_material(atoms, calc_name, fmax):
         }
 
     
-    return {"thermal_properties": data, "time": execution_time, "phonopy_settings": phonopy_settings}
+    return {"thermal_properties": data, "energy_correction": energy_correction "time": execution_time, "phonopy_settings": phonopy_settings}
 
 
 @job
-def relax_material(atoms, calc_name, fmax):
+def relax_material(atoms, calc_name, fmax, dispersion_correction=False):
     start_time = time.perf_counter()
     write('POSCAR', atoms, format='vasp')
 
@@ -253,7 +257,10 @@ def relax_material(atoms, calc_name, fmax):
     dyn = BFGS(filtered_atoms, trajectory='relaxation.traj', logfile='relax.log')
     dyn.run(fmax=fmax)
 
-    energy = atoms.get_potential_energy()
+    structure = AseAtomsAdaptor.get_structure(atoms)
+    energy_correction = obtain_energy_correction(calc_name, structure)
+
+    energy = atoms.get_potential_energy() + energy_correction
         
     write('CONTCAR', atoms, format='vasp')
     atoms.info = {}
@@ -261,7 +268,7 @@ def relax_material(atoms, calc_name, fmax):
     end_time = time.perf_counter()
     execution_time = end_time - start_time
     
-    return {"output_atoms": atoms, "energy": energy, "time": execution_time}
+    return {"output_atoms": atoms, "energy": energy, "energy_correction": energy_correction, "time": execution_time}
 
 @job
 def relax_gas(atoms):
