@@ -23,7 +23,9 @@ from pymatgen.io.ase import AseAtomsAdaptor
 from matcalc._qha import QHACalc
 
 from ase.calculators.mixing import SumCalculator
-from torch_dftd.toch_dftd3_calculator import TorchDFTD3Calculator
+from torch_dftd.torch_dftd3_calculator import TorchDFTD3Calculator
+from pymatgen.entries.computed_entries import ComputedStructureEntry
+from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 
 import json
 from monty.json import MontyEncoder
@@ -35,7 +37,7 @@ import time
 from pymatgen.core import Structure
 import os
 
-3d_metals = ["V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu"]
+metals_3d = ["V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu"]
 
 hubbard_dict = {"Fe": 5.3, "O": 0.0}
 
@@ -82,17 +84,17 @@ def obtain_energy_correction(calc_name, structure):
         
             labels.append(title)
 
-    if  any(element in 3d_metals for element in elements) and "O" in elements:
+    if  any(element in metals_3d for element in elements) and "O" in elements:
         hubbards = {element: hubbard_dict[element] for element in elements if element in hubbard_dict}
         processed_entry = ComputedStructureEntry(
             structure = structure,
-            energy = 0.0
+            energy = 0.0,
             parameters = {'run_type': 'GGA+U', 'potcar_symbols': labels, 'hubbards': hubbards, 'is_hubbard': True}
         )
     else:
         processed_entry = ComputedStructureEntry(
             structure = structure,
-            energy = 0.0
+            energy = 0.0,
             parameters = {'run_type': 'GGA', 'potcar_symbols': labels}
         )
 
@@ -155,10 +157,12 @@ def choose_calc(calc_name, atoms, dispersion_correction):
         model = matgl.load_model("/home/bd8619/.cache/matgl/models--materialyze--TensorNet-PES-MatPES-r2SCAN-2025.2-m/snapshots/0e4ef6457eb41db1e8b957bed9337fd4fbac3d89/")
         calc = PESCalculator(potential=model)
 
-    if dispersion_correction=True and calc_name is in ["UMA_OMAT", "PET_OAM_XL", "MACE_MPA_0"]:
+    if dispersion_correction==True and calc_name in ["UMA_OMAT", "PET_OAM_XL", "MACE_MPA_0"]:
+        device="cuda"
         dft_d3 = TorchDFTD3Calculator(device=device, xc="pbe", damping="bj")
         calc = SumCalculator([calc, dft_d3])
-    elif dispersion_correction=True and calc_name is in ["PET_OMATPES_L", "MACE_MATPES_r2SCAN_0", "TensorNet_MatPES_r2SCAN"]:
+    elif dispersion_correction==True and calc_name in ["PET_OMATPES_L", "MACE_MATPES_r2SCAN_0", "TensorNet_MatPES_r2SCAN"]:
+        device="cuda"
         dft_d3 = TorchDFTD3Calculator(device=device, xc="r2scan", damping="bj")
         calc = SumCalculator([calc, dft_d3])
     
@@ -246,7 +250,7 @@ def QHA_material(atoms, calc_name, fmax, dispersion_correction=False):
         }
 
     
-    return {"thermal_properties": data, "energy_correction": energy_correction "time": execution_time, "phonopy_settings": phonopy_settings}
+    return {"thermal_properties": data, "energy_correction": energy_correction, "time": execution_time, "phonopy_settings": phonopy_settings}
 
 
 @job
@@ -254,7 +258,7 @@ def relax_material(atoms, calc_name, fmax, dispersion_correction=False):
     start_time = time.perf_counter()
     write('POSCAR', atoms, format='vasp')
 
-    calc = choose_calc(calc_name, atoms)
+    calc = choose_calc(calc_name, atoms, dispersion_correction)
     atoms.calc = calc
     
     filtered_atoms = FrechetCellFilter(atoms)
