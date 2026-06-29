@@ -29,6 +29,74 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 import time
+from pymatgen.core import Structure
+import os
+
+3d_metals = ["V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu"]
+
+hubbard_dict = {"Fe": 5.3, "O": 0.0}
+
+#need to call the energy correction for the relax_job as well
+
+def obtain_energy_correction(calc_name, structure):
+    if calc_name == "MACE_MPA_0":
+        potcar_base_path = "/home/ROSENGROUP/software/vasp/ase_potcars/vasp_potcars.original/potpaw_PBE"
+        # default MP potcar map (from MPRelaxSet.yaml)
+        potcar_map = {
+            "Ac": "Ac", "Ag": "Ag", "Al": "Al", "Ar": "Ar", "As": "As",
+            "Au": "Au", "B": "B", "Ba": "Ba_sv", "Be": "Be_sv", "Bi": "Bi",
+            "Br": "Br", "C": "C", "Ca": "Ca_sv", "Cd": "Cd", "Ce": "Ce",
+            "Cl": "Cl", "Co": "Co", "Cr": "Cr_pv", "Cs": "Cs_sv", "Cu": "Cu_pv",
+            "Dy": "Dy_3", "Er": "Er_3", "Eu": "Eu", "F": "F", "Fe": "Fe_pv",
+            "Ga": "Ga_d", "Gd": "Gd", "Ge": "Ge_d", "H": "H", "He": "He",
+            "Hf": "Hf_pv", "Hg": "Hg", "Ho": "Ho_3", "I": "I", "In": "In_d",
+            "Ir": "Ir", "K": "K_sv", "Kr": "Kr", "La": "La", "Li": "Li_sv",
+            "Lu": "Lu_3", "Mg": "Mg_pv", "Mn": "Mn_pv", "Mo": "Mo_pv",
+            "N": "N", "Na": "Na_pv", "Nb": "Nb_pv", "Nd": "Nd_3", "Ne": "Ne",
+            "Ni": "Ni_pv", "Np": "Np", "O": "O", "Os": "Os_pv", "P": "P",
+            "Pa": "Pa", "Pb": "Pb_d", "Pd": "Pd", "Pm": "Pm_3", "Pr": "Pr_3",
+            "Pt": "Pt", "Pu": "Pu", "Rb": "Rb_sv", "Re": "Re_pv", "Rh": "Rh_pv",
+            "Ru": "Ru_pv", "S": "S", "Sb": "Sb", "Sc": "Sc_sv", "Se": "Se",
+            "Si": "Si", "Sm": "Sm_3", "Sn": "Sn_d", "Sr": "Sr_sv", "Ta": "Ta_pv",
+            "Tb": "Tb_3", "Tc": "Tc_pv", "Te": "Te", "Th": "Th", "Ti": "Ti_pv",
+            "Tl": "Tl_d", "Tm": "Tm_3", "U": "U", "V": "V_pv", "W": "W_pv",
+            "Xe": "Xe", "Y": "Y_sv", "Yb": "Yb_2", "Zn": "Zn", "Zr": "Zr_sv",
+        }
+
+        # get unique elements in order they appear in structure
+        elements = list(dict.fromkeys(str(s.specie.symbol) for s in structure))
+    
+        labels = []
+        for element in elements:
+            subdir = potcar_map.get(element, element)
+            potcar_path = os.path.join(potcar_base_path, subdir, "POTCAR")
+        
+            if not os.path.exists(potcar_path):
+                raise FileNotFoundError(f"POTCAR not found for {element} at {potcar_path}")
+        
+            with open(potcar_path, "r") as f:
+                title = f.readline().strip()
+        
+            labels.append(title)
+
+    if  any(element in 3d_metals for element in elements) and "O" in elements:
+        hubbards = {element: hubbard_dict[element] for element in elements if element in hubbard_dict}
+        processed_entry = ComputedStructureEntry(
+            structure = structure,
+            energy = 0.0
+            parameters = {'run_type': 'GGA+U', 'potcar_symbols': labels, 'hubbards': hubbards, 'is_hubbard': True}
+        )
+    else:
+        processed_entry = ComputedStructureEntry(
+            structure = structure,
+            energy = 0.0
+            parameters = {'run_type': 'GGA', 'potcar_symbols': labels}
+        )
+
+    processed_entry.energy_adjustments = MaterialsProject2020Compatibility().get_adjustments(processed_entry)
+    correction = processed_entry.correction
+
+    return correction
 
 def choose_calc(calc_name, atoms):
     
@@ -117,16 +185,14 @@ def QHA_material(atoms, calc_name, fmax):
     end_time = time.perf_counter()
     execution_time = end_time - start_time
     
-    cp = result["heat_capacity_P"][300]  # J/mol/K
-    gibb = result["gibbs_free_energies"][300]
-
-    sub_data= [cp, gibb]
-    np.savetxt("select_values.txt", sub_data)
-    
     result["qha"].plot_qha()
     plt.savefig(f"QHA.png")
 
-    gibbs_energies = result["gibbs_free_energies"]
+    structure = AseAtomsAdaptor.get_structure(atoms)
+    energy_correction = obtain_energy_correction(calc_name, structure)
+    
+    
+    gibbs_energies = result["gibbs_free_energies"] + energy_correction
     temperatures = result["temperatures"]
 
     data = np.column_stack((temperatures, gibbs_energies))
