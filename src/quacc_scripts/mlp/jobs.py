@@ -22,6 +22,9 @@ from pymatgen.io.ase import AseAtomsAdaptor
 
 from matcalc._qha import QHACalc
 
+from ase.calculators.mixing import SumCalculator
+from torch_dftd.toch_dftd3_calculator import TorchDFTD3Calculator
+
 import json
 from monty.json import MontyEncoder
 
@@ -153,9 +156,11 @@ def choose_calc(calc_name, atoms, dispersion_correction):
         calc = PESCalculator(potential=model)
 
     if dispersion_correction=True and calc_name is in ["UMA_OMAT", "PET_OAM_XL", "MACE_MPA_0"]:
-
+        dft_d3 = TorchDFTD3Calculator(device=device, xc="pbe", damping="bj")
+        calc = SumCalculator([calc, dft_d3])
     elif dispersion_correction=True and calc_name is in ["PET_OMATPES_L", "MACE_MATPES_r2SCAN_0", "TensorNet_MatPES_r2SCAN"]:
-    
+        dft_d3 = TorchDFTD3Calculator(device=device, xc="r2scan", damping="bj")
+        calc = SumCalculator([calc, dft_d3])
     
     return calc
 
