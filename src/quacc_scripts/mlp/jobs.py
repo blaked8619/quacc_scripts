@@ -264,11 +264,11 @@ def QHA_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="flo
 
 
 @job
-def relax_material(atoms, calc_name, fmax, dispersion_correction=False):
+def relax_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="float64"):
     start_time = time.perf_counter()
     write('POSCAR', atoms, format='vasp')
 
-    calc = choose_calc(calc_name, atoms, dispersion_correction)
+    calc = choose_calc(calc_name, atoms, dispersion_correction, dtype)
     atoms.calc = calc
     
     filtered_atoms = FrechetCellFilter(atoms)
