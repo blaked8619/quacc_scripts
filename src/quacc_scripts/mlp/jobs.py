@@ -44,6 +44,7 @@ hubbard_dict = {"Fe": 5.3, "O": 0.0}
 #need to call the energy correction for the relax_job as well
 
 def obtain_energy_correction(calc_name, structure):
+    correction = 0.0
     if calc_name == "MACE_MPA_0":
         potcar_base_path = "/home/ROSENGROUP/software/vasp/ase_potcars/vasp_potcars.original/potpaw_PBE"
         # default MP potcar map (from MPRelaxSet.yaml)
@@ -103,7 +104,7 @@ def obtain_energy_correction(calc_name, structure):
 
     return correction
 
-def choose_calc(calc_name, atoms, dispersion_correction):
+def choose_calc(calc_name, atoms, dispersion_correction, dtype):
     
     if calc_name == "vasp_OMAT":
         import os
@@ -149,6 +150,15 @@ def choose_calc(calc_name, atoms, dispersion_correction):
         model_paths=["/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MATPES-r2SCAN-0/MACE-matpes-r2scan-omat-ft.model"],
         device="cuda"
         )
+
+    elif calc_name == "MACE_MH_1_MATPES_r2SCAN":  #the built in dispersion correction here is just the TorchDFTD3Calculator
+        from mace.calculators import mace_mp
+
+        if dispersion_correction == True:
+            calc = mace_mp(model="/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MH-1-MATPES-R2SCAN/mace-mh-1.model", default_dtype=dtype, device="cuda", dispersion=True, dispersion_xc="r2scan", head="matpes_r2scan")
+
+        elif:
+            calc = mace_mp(model="/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MH-1-MATPES-R2SCAN/mace-mh-1.model", default_dtype=dtype, device="cuda", head="matpes_r2scan")
     
     elif calc_name == "TensorNet_MatPES_r2SCAN":
         import matgl
@@ -169,10 +179,10 @@ def choose_calc(calc_name, atoms, dispersion_correction):
     return calc
 
 @job
-def QHA_material(atoms, calc_name, fmax, dispersion_correction=False):
+def QHA_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="float64"):
 
     start_time = time.perf_counter()
-    calc = choose_calc(calc_name, atoms, dispersion_correction)
+    calc = choose_calc(calc_name, atoms, dispersion_correction, dtype)
     
     result = QHACalc(
     calc,
