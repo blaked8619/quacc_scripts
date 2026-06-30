@@ -45,6 +45,10 @@ hubbard_dict = {"Fe": 5.3, "O": 0.0}
 
 def obtain_energy_correction(calc_name, structure):
     correction = 0.0
+
+    # get unique elements in order they appear in structure
+    elements = list(dict.fromkeys(str(s.specie.symbol) for s in structure))
+    
     if calc_name == "MACE_MPA_0":
         potcar_base_path = "/home/ROSENGROUP/software/vasp/ase_potcars/vasp_potcars.original/potpaw_PBE"
         # default MP potcar map (from MPRelaxSet.yaml)
@@ -69,8 +73,7 @@ def obtain_energy_correction(calc_name, structure):
             "Xe": "Xe", "Y": "Y_sv", "Yb": "Yb_2", "Zn": "Zn", "Zr": "Zr_sv",
         }
 
-        # get unique elements in order they appear in structure
-        elements = list(dict.fromkeys(str(s.specie.symbol) for s in structure))
+        
     
         labels = []
         for element in elements:
@@ -85,22 +88,23 @@ def obtain_energy_correction(calc_name, structure):
         
             labels.append(title)
 
-    if  any(element in metals_3d for element in elements) and "O" in elements:
-        hubbards = {element: hubbard_dict[element] for element in elements if element in hubbard_dict}
-        processed_entry = ComputedStructureEntry(
-            structure = structure,
-            energy = 0.0,
-            parameters = {'run_type': 'GGA+U', 'potcar_symbols': labels, 'hubbards': hubbards, 'is_hubbard': True}
-        )
-    else:
-        processed_entry = ComputedStructureEntry(
-            structure = structure,
-            energy = 0.0,
-            parameters = {'run_type': 'GGA', 'potcar_symbols': labels}
-        )
+    if calc_name in ["UMA_OMAT", "PET_OAM_XL", "MACE_MPA_0"]:
+        if  any(element in metals_3d for element in elements) and "O" in elements:
+            hubbards = {element: hubbard_dict[element] for element in elements if element in hubbard_dict}
+            processed_entry = ComputedStructureEntry(
+                structure = structure,
+                energy = 0.0,
+                parameters = {'run_type': 'GGA+U', 'potcar_symbols': labels, 'hubbards': hubbards, 'is_hubbard': True}
+            )
+        else:
+            processed_entry = ComputedStructureEntry(
+                structure = structure,
+                energy = 0.0,
+                parameters = {'run_type': 'GGA', 'potcar_symbols': labels}
+            )
 
-    processed_entry.energy_adjustments = MaterialsProject2020Compatibility().get_adjustments(processed_entry)
-    correction = processed_entry.correction
+        processed_entry.energy_adjustments = MaterialsProject2020Compatibility().get_adjustments(processed_entry)
+        correction = processed_entry.correction
 
     return correction
 
