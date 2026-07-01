@@ -37,7 +37,7 @@ import time
 from pymatgen.core import Structure
 import os
 
-metals_3d = ["V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu"]
+metals_3d = ["V", "Cr", "Mn", "Fe", "Co", "Ni", "W", "Mo"]
 
 hubbard_dict = {"Fe": 5.3, "O": 0.0}
 
