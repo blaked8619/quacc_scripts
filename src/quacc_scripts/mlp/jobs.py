@@ -45,7 +45,7 @@ hubbard_dict = {"Fe": 5.3, "O": 0.0}
 
 def obtain_energy_correction(calc_name, structure):
     correction = 0.0
-
+    potcar_map = None
     # get unique elements in order they appear in structure
     elements = list(dict.fromkeys(str(s.specie.symbol) for s in structure))
     
@@ -73,8 +73,32 @@ def obtain_energy_correction(calc_name, structure):
             "Xe": "Xe", "Y": "Y_sv", "Yb": "Yb_2", "Zn": "Zn", "Zr": "Zr_sv",
         }
 
+    elif calc_name == "UMA_OMAT" or calc_name == "PET_OAM_XL":
+        potcar_base_path = "/home/ROSENGROUP/software/vasp/ase_potcars/vasp_potcars.54/potpaw_PBE"
+        #defualt OMAT potcar map
+        potcar_map = {
+            "Ac": "Ac", "Ag": "Ag", "Al": "Al", "Ar": "Ar", "As": "As",
+            "Au": "Au", "B": "B", "Ba": "Ba_sv", "Be": "Be_sv", "Bi": "Bi",
+            "Br": "Br", "C": "C", "Ca": "Ca_sv", "Cd": "Cd", "Ce": "Ce",
+            "Cl": "Cl", "Co": "Co", "Cr": "Cr_pv", "Cs": "Cs_sv", "Cu": "Cu_pv",
+            "Dy": "Dy_3", "Er": "Er_3", "Eu": "Eu", "F": "F", "Fe": "Fe_pv",
+            "Ga": "Ga_d", "Gd": "Gd", "Ge": "Ge_d", "H": "H", "He": "He",
+            "Hf": "Hf_pv", "Hg": "Hg", "Ho": "Ho_3", "I": "I", "In": "In_d",
+            "Ir": "Ir", "K": "K_sv", "Kr": "Kr", "La": "La", "Li": "Li_sv",
+            "Lu": "Lu_3", "Mg": "Mg_pv", "Mn": "Mn_pv", "Mo": "Mo_pv",
+            "N": "N", "Na": "Na_pv", "Nb": "Nb_pv", "Nd": "Nd_3", "Ne": "Ne",
+            "Ni": "Ni_pv", "Np": "Np", "O": "O", "Os": "Os_pv", "P": "P",
+            "Pa": "Pa", "Pb": "Pb_d", "Pd": "Pd", "Pm": "Pm_3", "Pr": "Pr_3",
+            "Pt": "Pt", "Pu": "Pu", "Rb": "Rb_sv", "Re": "Re_pv", "Rh": "Rh_pv",
+            "Ru": "Ru_pv", "S": "S", "Sb": "Sb", "Sc": "Sc_sv", "Se": "Se",
+            "Si": "Si", "Sm": "Sm_3", "Sn": "Sn_d", "Sr": "Sr_sv", "Ta": "Ta_pv",
+            "Tb": "Tb_3", "Tc": "Tc_pv", "Te": "Te", "Th": "Th", "Ti": "Ti_pv",
+            "Tl": "Tl_d", "Tm": "Tm_3", "U": "U", "V": "V_pv", "W": "W_sv",
+            "Xe": "Xe", "Y": "Y_sv", "Yb": "Yb_3", "Zn": "Zn", "Zr": "Zr_sv",
+        }
         
-    
+
+    if potcar_map != None:
         labels = []
         for element in elements:
             subdir = potcar_map.get(element, element)
@@ -125,35 +149,31 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
     elif calc_name == "UMA_OMAT":
         from fairchem.core import pretrained_mlip, FAIRChemCalculator
         from fairchem.core.units.mlip_unit import load_predict_unit
-
-        checkpoint = "/home/bd8619/.cache/fairchem/models--facebook--UMA/snapshots/1828688e46702b707bad27ca353a7133e5cc62df/checkpoints/uma-s-1p2.pt"
-        #model_name = "uma-s-1p2"
-        predictor = load_predict_unit(checkpoint, device="cuda")
+        from fairchem.core.units.mlip_unit.predict import InferenceSettings
+        
+        checkpoint = "/home/bd8619/.cache/fairchem/models--facebook--UMA/snapshots/7210de6fe86ad94854b21b881fefbcfdfeab373b/checkpoints/uma-s-1p2.pt"
+        predictor = load_predict_unit(checkpoint, device="cuda", inference_settings=InferenceSettings(base_precision_dtype=dtype))
         calc = FAIRChemCalculator(predictor, task_name="omat")
 
     elif calc_name == "PET_OAM_XL":
         from upet.calculator import UPETCalculator
-        calc = UPETCalculator(checkpoint_path="/scratch/gpfs/ROSENGROUP/bd8619/checkpoints/PET-OAM-XL/pet-oam-xl-v1.0.0.ckpt", device="cuda")
+        calc = UPETCalculator(checkpoint_path="/scratch/gpfs/ROSENGROUP/bd8619/checkpoints/PET-OAM-XL/pet-oam-xl-v1.0.0.ckpt", dtype= dtype, device="cuda")
 
+    
     elif calc_name == "PET_OMATPES_L":
         from upet.calculator import UPETCalculator
-        calc = UPETCalculator(checkpoint_path="/scratch/gpfs/ROSENGROUP/bd8619/checkpoints/PET-OMATPES-L/pet-omatpes-l-v0.1.0.ckpt", device="cuda")
+        calc = UPETCalculator(checkpoint_path="/scratch/gpfs/ROSENGROUP/bd8619/checkpoints/PET-OMATPES-L/pet-omatpes-l-v0.1.0.ckpt", dtype=dtype, device="cuda")
 
     elif calc_name == "MACE_MPA_0":
         from mace.calculators import MACECalculator
 
-        calc = MACECalculator(
-        model_paths=["/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MPA-0/mace-mpa-0-medium.model"],
-        device="cuda"
-        )
+        calc = MACECalculator(model_paths=["/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MPA-0/mace-mpa-0-medium.model"], device="cuda", default_dtype=dtype)
 
     elif calc_name == "MACE_MATPES_r2SCAN_0":
         from mace.calculators import MACECalculator
 
         calc = MACECalculator(
-        model_paths=["/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MATPES-r2SCAN-0/MACE-matpes-r2scan-omat-ft.model"],
-        device="cuda"
-        )
+        model_paths=["/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MATPES-r2SCAN-0/MACE-matpes-r2scan-omat-ft.model"], device="cuda", defualt_dtype=dtype)
 
     elif calc_name == "MACE_MH_1_MATPES_r2SCAN":  #the built in dispersion correction here is just the TorchDFTD3Calculator
         from mace.calculators import mace_mp
@@ -167,6 +187,12 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
     elif calc_name == "TensorNet_MatPES_r2SCAN":
         import matgl
         from matgl.ext.ase import PESCalculator
+        import torch
+
+        if dtype == "float64":
+            matgl.float_th = torch.float64
+        elif dtype == "float32":
+            matgl.float_th = torch.float32
         
         model = matgl.load_model("/home/bd8619/.cache/matgl/models--materialyze--TensorNet-PES-MatPES-r2SCAN-2025.2-m/snapshots/0e4ef6457eb41db1e8b957bed9337fd4fbac3d89/")
         calc = PESCalculator(potential=model)
