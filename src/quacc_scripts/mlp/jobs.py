@@ -39,7 +39,8 @@ import os
 
 metals_3d = ["V", "Cr", "Mn", "Fe", "Co", "Ni", "W", "Mo"]
 
-hubbard_dict = {"Fe": 5.3, "O": 0.0}
+#just for oxides
+hubbard_dict = {"Fe": 5.3, "Co": 3.32, "Cr": 3.7, "Mn": 3.9, "Mo": 4.38, "Ni": 6.2, "V": 3.25, "W": 6.2, "O": 0.0}
 
 #need to call the energy correction for the relax_job as well
 
@@ -173,7 +174,7 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
         from mace.calculators import MACECalculator
 
         calc = MACECalculator(
-        model_paths=["/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MATPES-r2SCAN-0/MACE-matpes-r2scan-omat-ft.model"], device="cuda", defualt_dtype=dtype)
+        model_paths=["/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MATPES-r2SCAN-0/MACE-matpes-r2scan-omat-ft.model"], device="cuda", default_dtype=dtype)
 
     elif calc_name == "MACE_MH_1_MATPES_r2SCAN":  #the built in dispersion correction here is just the TorchDFTD3Calculator
         from mace.calculators import mace_mp
@@ -213,6 +214,9 @@ def QHA_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="flo
 
     start_time = time.perf_counter()
     calc = choose_calc(calc_name, atoms, dispersion_correction, dtype)
+
+    structure = AseAtomsAdaptor.get_structure(atoms)
+    energy_correction = obtain_energy_correction(calc_name, structure)
     
     result = QHACalc(
     calc,
@@ -241,9 +245,6 @@ def QHA_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="flo
     
     result["qha"].plot_qha()
     plt.savefig(f"QHA.png")
-
-    structure = AseAtomsAdaptor.get_structure(atoms)
-    energy_correction = obtain_energy_correction(calc_name, structure)
     
     gibbs_energies = result["gibbs_free_energies"] + energy_correction
     temperatures = result["temperatures"]
