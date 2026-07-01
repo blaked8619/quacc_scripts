@@ -50,7 +50,7 @@ def obtain_energy_correction(calc_name, structure):
     # get unique elements in order they appear in structure
     elements = list(dict.fromkeys(str(s.specie.symbol) for s in structure))
     
-    if calc_name == "MACE_MPA_0":
+    if calc_name == "MACE_MPA_0" or calc_name == "PET_OAM_XL":
         potcar_base_path = "/home/ROSENGROUP/software/vasp/ase_potcars/vasp_potcars.original/potpaw_PBE"
         # default MP potcar map (from MPRelaxSet.yaml)
         potcar_map = {
@@ -74,7 +74,7 @@ def obtain_energy_correction(calc_name, structure):
             "Xe": "Xe", "Y": "Y_sv", "Yb": "Yb_2", "Zn": "Zn", "Zr": "Zr_sv",
         }
 
-    elif calc_name == "UMA_OMAT" or calc_name == "PET_OAM_XL":
+    elif calc_name == "UMA_OMAT":
         potcar_base_path = "/home/ROSENGROUP/software/vasp/ase_potcars/vasp_potcars.54/potpaw_PBE"
         #defualt OMAT potcar map
         potcar_map = {
