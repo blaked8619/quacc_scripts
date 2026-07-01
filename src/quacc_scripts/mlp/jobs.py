@@ -190,12 +190,15 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
         from matgl.ext.ase import PESCalculator
         import torch
 
+        model = matgl.load_model("/home/bd8619/.cache/matgl/models--materialyze--TensorNet-PES-MatPES-r2SCAN-2025.2-m/snapshots/0e4ef6457eb41db1e8b957bed9337fd4fbac3d89/")
+        
         if dtype == "float64":
             matgl.float_th = torch.float64
+            model = model.double()
         elif dtype == "float32":
             matgl.float_th = torch.float32
-        
-        model = matgl.load_model("/home/bd8619/.cache/matgl/models--materialyze--TensorNet-PES-MatPES-r2SCAN-2025.2-m/snapshots/0e4ef6457eb41db1e8b957bed9337fd4fbac3d89/")
+            model = model.float()
+            
         calc = PESCalculator(potential=model)
 
     if dispersion_correction==True and calc_name in ["UMA_OMAT", "PET_OAM_XL", "MACE_MPA_0"]:
