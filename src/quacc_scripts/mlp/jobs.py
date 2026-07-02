@@ -372,7 +372,7 @@ def gas_vibrations(atoms, mlip_energy, spin_multiplicity):
     model_name = "uma-s-1p2"
     predictor = pretrained_mlip.get_predict_unit(model_name)
     atoms.calc = FAIRChemCalculator(predictor, task_name="omol")
-
+    atoms.pbc = False
     #spin_multiplicity = atoms.info['spin']
     
     vib = Vibrations(atoms)
