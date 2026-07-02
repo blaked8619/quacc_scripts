@@ -347,7 +347,7 @@ def relax_gas(atoms, fmax, spin_multiplicity):
     atoms.info['spin'] = spin_multiplicity
     
     model_name = "uma-s-1p2"
-    predictor = pretrained_mlip.get_predict_unit(model_name, device="cuda")
+    predictor = pretrained_mlip.get_predict_unit(model_name)
     calc = FAIRChemCalculator(predictor, task_name="omol")
     atoms.calc = calc
     
