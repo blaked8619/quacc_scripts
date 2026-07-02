@@ -369,6 +369,8 @@ def relax_gas(atoms, fmax, spin_multiplicity):
 
 #@job
 def gas_vibrations(atoms, mlip_energy, spin_multiplicity):
+    from fairchem.core import pretrained_mlip, FAIRChemCalculator
+    
     model_name = "uma-s-1p2"
     predictor = pretrained_mlip.get_predict_unit(model_name)
     atoms.calc = FAIRChemCalculator(predictor, task_name="omol")
