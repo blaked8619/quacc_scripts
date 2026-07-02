@@ -325,6 +325,7 @@ def relax_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="f
 
 #@job
 def relax_gas(atoms, fmax, spin_multiplicity):
+    from fairchem.core import pretrained_mlip, FAIRChemCalculator
     #try:
     #    magmoms = atoms.get_initial_magnetic_moments()
     #    total_magmom = np.sum(magmoms)
