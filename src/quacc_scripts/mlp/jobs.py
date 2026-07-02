@@ -345,6 +345,10 @@ def relax_gas(atoms, fmax, spin_multiplicity):
       #  atoms.info['spin'] = 1  # Default to singlet
 
     atoms.info['spin'] = spin_multiplicity
+
+    atoms.set_cell([20, 20, 20])
+    atoms.pbc = False
+    atoms.center()
     
     model_name = "uma-s-1p2"
     predictor = pretrained_mlip.get_predict_unit(model_name)
