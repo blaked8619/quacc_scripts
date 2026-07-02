@@ -363,7 +363,7 @@ def relax_gas(atoms, fmax, spin_multiplicity):
     
     return {"output_atoms": atoms, "mlip_energy": mlip_energy, "magmoms": magmoms, "spin_multiplicity": atoms.info['spin']}
 
-@job
+#@job
 def gas_vibrations(atoms, mlip_energy, spin_multiplicity):
     model_name = "uma-s-1p2"
     predictor = pretrained_mlip.get_predict_unit(model_name)
