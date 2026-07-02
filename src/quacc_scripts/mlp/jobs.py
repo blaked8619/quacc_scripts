@@ -364,12 +364,12 @@ def relax_gas(atoms, fmax, spin_multiplicity):
     return {"output_atoms": atoms, "mlip_energy": mlip_energy, "magmoms": magmoms, "spin_multiplicity": atoms.info['spin']}
 
 @job
-def gas_vibrations(atoms, mlip_energy):
+def gas_vibrations(atoms, mlip_energy, spin_multiplicity):
     model_name = "uma-s-1p2"
-    predictor = pretrained_mlip.get_predict_unit(model_name, device="cuda")
+    predictor = pretrained_mlip.get_predict_unit(model_name)
     atoms.calc = FAIRChemCalculator(predictor, task_name="omol")
 
-    spin_multiplicity = atoms.info['spin']
+    #spin_multiplicity = atoms.info['spin']
     
     vib = Vibrations(atoms)
     vib.run()
