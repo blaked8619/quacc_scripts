@@ -383,26 +383,26 @@ def gas_vibrations(atoms, mlip_energy, spin_multiplicity):
 
     real_energies = []
     imag_energies = []
-    
+
     for energy in vib_energies:
-        if np.iscomplex(energy) or energy < 0:
-            # Imaginary frequency (unstable mode)
-            imag_energies.append(float(np.abs(energy)))
-        else:
-            real_energies.append(float(energy))
+    if np.iscomplex(energy) or energy < 0:
+        # Imaginary frequency (unstable mode)
+        imag_energies.append(float(np.abs(energy)))
+    else:
+        real_energies.append(float(energy))
 
     # Or save both in one file with labels
-    with open("vib_energies_summary.txt", "w") as f:
-        f.write("# Vibrational Energies Summary\n")
-        f.write(f"# Total modes: {len(vib_energies)}\n")
-        f.write(f"# Real modes: {len(real_energies)}\n")
-        f.write(f"# Imaginary modes: {len(imag_energies)}\n\n")
-        f.write("Real energies (eV):\n")
-        for e in real_energies:
-            f.write(f"{e:.6f}\n")
-            f.write("\nImaginary energies (eV, absolute values):\n")
-        for e in imag_energies:
-            f.write(f"{e:.6f}\n")
+with open("vib_energies_summary.txt", "w") as f:
+    f.write("# Vibrational Energies Summary\n")
+    f.write(f"# Total modes: {len(vib_energies)}\n")
+    f.write(f"# Real modes: {len(real_energies)}\n")
+    f.write(f"# Imaginary modes: {len(imag_energies)}\n\n")
+    f.write("Real energies (eV):\n")
+    for e in real_energies:
+        f.write(f"{e:.6f}\n")
+    f.write("\nImaginary energies (eV, absolute values):\n")  # now outside loop
+    for e in imag_energies:
+        f.write(f"{e:.6f}\n")
     
     #find the symmetry number
     mol = AseAtomsAdaptor().get_molecule(atoms, charge_spin_check=False)
