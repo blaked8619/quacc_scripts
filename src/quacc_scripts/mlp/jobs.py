@@ -323,43 +323,44 @@ def relax_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="f
     
     return {"output_atoms": atoms, "energy": energy, "energy_correction": energy_correction, "time": execution_time}
 
-@job
-def relax_gas(atoms):
-    try:
-        magmoms = atoms.get_initial_magnetic_moments()
-        total_magmom = np.sum(magmoms)
+#@job
+def relax_gas(atoms, fmax, spin_multiplicity):
+    #try:
+    #    magmoms = atoms.get_initial_magnetic_moments()
+    #    total_magmom = np.sum(magmoms)
 
         # Spin multiplicity = |total magnetization| + 1
         # I'm not sure if this is exactly correct but I verified for each gas that the spin_multiplicity matched what is expected
-        spin_multiplicity = int(round(abs(total_magmom))) + 1
+       # spin_multiplicity = int(round(abs(total_magmom))) + 1
 
         # Store it
-        atoms.info['spin'] = spin_multiplicity
+      #  atoms.info['spin'] = spin_multiplicity
 
-        print(f"Total magnetization: {total_magmom:.2f}")
-        print(f"Inferred spin multiplicity: {spin_multiplicity}")
-    except:
-        magmoms = None
-        print("No magnetic moments found (non-spin-polarized calculation)")
-        atoms.info['spin'] = 1  # Default to singlet
+       # print(f"Total magnetization: {total_magmom:.2f}")
+        #print(f"Inferred spin multiplicity: {spin_multiplicity}")
+   # except:
+    #    magmoms = None
+     #   print("No magnetic moments found (non-spin-polarized calculation)")
+      #  atoms.info['spin'] = 1  # Default to singlet
 
+    atoms.info['spin'] = spin_multiplicity
+    
     model_name = "uma-s-1p2"
     predictor = pretrained_mlip.get_predict_unit(model_name, device="cuda")
     calc = FAIRChemCalculator(predictor, task_name="omol")
-
-    runner = RelaxCalc(calculator = calc, optimizer = BFGS, max_steps = 100000, traj_file = "relax.traj", fmax=1e-3, relax_atoms = True, relax_cell = False)
-    result = runner.calc(atoms)
+    atoms.calc = calc
     
-    with open("relax_results.json", "w") as f:
-        json.dump(result, f, cls=MontyEncoder, indent=2)
-
+    dyn = BFGS(atoms, trajectory='relaxation.traj', logfile='relax.log')
+    dyn.run(fmax=fmax)
+    
     write('CONTCAR', atoms, format='vasp')
     
     mlip_energy = atoms.get_potential_energy()
-    with open("output_energy.txt", "w") as file:
-        file.write(mlip_energy)
     
-    return {"result": result, "output_atoms": atoms, "mlip_energy": mlip_energy, "magmoms": magmoms, "spin_multiplicity": atoms.info['spin']}
+    with open("output_energy.txt", "w") as file:
+        file.write(str(mlip_energy))
+    
+    return {"output_atoms": atoms, "mlip_energy": mlip_energy, "magmoms": magmoms, "spin_multiplicity": atoms.info['spin']}
 
 @job
 def gas_vibrations(atoms, mlip_energy):
