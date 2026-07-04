@@ -202,11 +202,11 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
         calc = PESCalculator(potential=model)
 
     if dispersion_correction==True and calc_name in ["UMA_OMAT", "PET_OAM_XL", "MACE_MPA_0"]:
-        device="cuda"
+        device="cpu"
         dft_d3 = TorchDFTD3Calculator(device=device, xc="pbe", damping="bj")
         calc = SumCalculator([calc, dft_d3])
     elif dispersion_correction==True and calc_name in ["PET_OMATPES_L", "MACE_MATPES_r2SCAN_0", "TensorNet_MatPES_r2SCAN"]:
-        device="cuda"
+        device="cpu"
         dft_d3 = TorchDFTD3Calculator(device=device, xc="r2scan", damping="bj")
         calc = SumCalculator([calc, dft_d3])
     
