@@ -326,9 +326,33 @@ def relax_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="f
     
     return {"output_atoms": atoms, "energy": energy, "energy_correction": energy_correction, "time": execution_time}
 
+def mini_choose_calc(method)
+    if calc =="meta":
+        from fairchem.core import pretrained_mlip, FAIRChemCalculator
+        model_name = "uma-s-1p2"
+        predictor = pretrained_mlip.get_predict_unit(model_name)
+        calc = FAIRChemCalculator(predictor, task_name="omol")
+    elif calc == "mace-medium":
+        from mace.calculators import mace_polar
+        calc = mace_polar(
+        model="polar-1-m",
+        device="cpu",
+        default_dtype="float64"
+        )
+    elif calc == "mace-large":
+        from mace.calculators import mace_polar
+        calc = mace_polar(
+        model="polar-1-l",
+        device="cpu",
+        default_dtype="float64"
+        )
+    
+    return calc
+
 #@job
-def relax_gas(atoms, fmax, spin_multiplicity):
-    from fairchem.core import pretrained_mlip, FAIRChemCalculator
+def relax_gas(atoms, fmax, spin_multiplicity, method):
+
+    #spin_multiplicity = atoms.info['spin']
     #try:
     #    magmoms = atoms.get_initial_magnetic_moments()
     #    total_magmom = np.sum(magmoms)
@@ -347,15 +371,14 @@ def relax_gas(atoms, fmax, spin_multiplicity):
      #   print("No magnetic moments found (non-spin-polarized calculation)")
       #  atoms.info['spin'] = 1  # Default to singlet
 
+    
     atoms.info['spin'] = spin_multiplicity
 
     atoms.set_cell([20, 20, 20])
     atoms.pbc = False
     atoms.center()
     
-    model_name = "uma-s-1p2"
-    predictor = pretrained_mlip.get_predict_unit(model_name)
-    calc = FAIRChemCalculator(predictor, task_name="omol")
+    calc = mini_choose_calc(method)
     atoms.calc = calc
     
     dyn = BFGS(atoms, trajectory='relaxation.traj', logfile='relax.log')
@@ -371,14 +394,14 @@ def relax_gas(atoms, fmax, spin_multiplicity):
     return {"output_atoms": atoms, "mlip_energy": mlip_energy, "magmoms": magmoms, "spin_multiplicity": atoms.info['spin']}
 
 #@job
-def gas_vibrations(atoms, mlip_energy, spin_multiplicity):
-    from fairchem.core import pretrained_mlip, FAIRChemCalculator
+def gas_vibrations(atoms, mlip_energy, spin_multiplicity, method):
     
-    model_name = "uma-s-1p2"
-    predictor = pretrained_mlip.get_predict_unit(model_name)
-    atoms.calc = FAIRChemCalculator(predictor, task_name="omol")
+ 
+    calc = mini_choose_calc(method)
+    atoms.calc = calc
+    atoms.info['spin'] = spin_multiplicity
+
     atoms.pbc = False
-    #spin_multiplicity = atoms.info['spin']
     
     vib = Vibrations(atoms)
     vib.run()
