@@ -327,19 +327,19 @@ def relax_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="f
     return {"output_atoms": atoms, "energy": energy, "energy_correction": energy_correction, "time": execution_time}
 
 def mini_choose_calc(method)
-    if calc =="meta":
+    if method =="meta":
         from fairchem.core import pretrained_mlip, FAIRChemCalculator
         model_name = "uma-s-1p2"
         predictor = pretrained_mlip.get_predict_unit(model_name)
         calc = FAIRChemCalculator(predictor, task_name="omol")
-    elif calc == "mace-medium":
+    elif method == "mace-medium":
         from mace.calculators import mace_polar
         calc = mace_polar(
         model="polar-1-m",
         device="cpu",
         default_dtype="float64"
         )
-    elif calc == "mace-large":
+    elif method == "mace-large":
         from mace.calculators import mace_polar
         calc = mace_polar(
         model="polar-1-l",
