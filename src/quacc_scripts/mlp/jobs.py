@@ -326,7 +326,7 @@ def relax_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="f
     
     return {"output_atoms": atoms, "energy": energy, "energy_correction": energy_correction, "time": execution_time}
 
-def mini_choose_calc(method)
+def mini_choose_calc(method):
     if method =="meta":
         from fairchem.core import pretrained_mlip, FAIRChemCalculator
         model_name = "uma-s-1p2"
