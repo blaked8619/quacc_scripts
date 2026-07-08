@@ -27,6 +27,8 @@ from torch_dftd.torch_dftd3_calculator import TorchDFTD3Calculator
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 
+from dftd4.ase import DFTD4
+
 import json
 from monty.json import MontyEncoder
 
@@ -207,8 +209,9 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
         calc = SumCalculator([calc, dft_d3])
     elif dispersion_correction==True and calc_name in ["PET_OMATPES_L", "MACE_MATPES_r2SCAN_0", "TensorNet_MatPES_r2SCAN"]:
         device="cpu"
-        dft_d3 = TorchDFTD3Calculator(device=device, xc="r2scan", damping="bj")
-        calc = SumCalculator([calc, dft_d3])
+        #dft_d3 = TorchDFTD3Calculator(device=device, xc="r2scan", damping="bj")
+        dft_d4 = DFTD4(method="r2scan")
+        calc = SumCalculator([calc, dft_d4])
     
     return calc
 
