@@ -403,7 +403,7 @@ def gas_vibrations(atoms, mlip_energy, spin_multiplicity, method):
     atoms.calc = calc
     atoms.info['spin'] = spin_multiplicity
 
-    atoms.pbc = False
+    #atoms.pbc = False
     
     vib = Vibrations(atoms)
     vib.run()
