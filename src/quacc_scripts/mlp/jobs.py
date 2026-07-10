@@ -376,9 +376,9 @@ def relax_gas(atoms, fmax, spin_multiplicity, method):
     
     atoms.info['spin'] = spin_multiplicity
 
-    atoms.set_cell([20, 20, 20])
-    atoms.pbc = False
-    atoms.center()
+    #atoms.set_cell([20, 20, 20])
+    #atoms.pbc = False
+    #atoms.center()
     
     calc = mini_choose_calc(method)
     atoms.calc = calc
@@ -386,7 +386,7 @@ def relax_gas(atoms, fmax, spin_multiplicity, method):
     dyn = BFGS(atoms, trajectory='relaxation.traj', logfile='relax.log')
     dyn.run(fmax=fmax)
     
-    write('CONTCAR', atoms, format='vasp')
+    write('structure.xyz', atoms)
     
     mlip_energy = atoms.get_potential_energy()
     
