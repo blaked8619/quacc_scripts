@@ -393,7 +393,7 @@ def relax_gas(atoms, fmax, spin_multiplicity, method):
     with open("output_energy.txt", "w") as file:
         file.write(str(mlip_energy))
     
-    return {"output_atoms": atoms, "mlip_energy": mlip_energy, "magmoms": magmoms, "spin_multiplicity": atoms.info['spin']}
+    return {"output_atoms": atoms, "mlip_energy": mlip_energy, "spin_multiplicity": atoms.info['spin']}
 
 #@job
 def gas_vibrations(atoms, mlip_energy, spin_multiplicity, method):
