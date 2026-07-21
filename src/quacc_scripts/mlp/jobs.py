@@ -26,6 +26,8 @@ from ase.calculators.mixing import SumCalculator
 from torch_dftd.torch_dftd3_calculator import TorchDFTD3Calculator
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
+from pymatgen.analysis.bond_valence import BVAnalyzer
+from quacc_scripts.mlp.jobs import get_potcar_labels
 
 from dftd4.ase import DFTD4
 
