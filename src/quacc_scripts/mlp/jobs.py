@@ -42,7 +42,7 @@ import os
 metals_3d = ["V", "Cr", "Mn", "Fe", "Co", "Ni", "W", "Mo"]
 
 #just for oxides
-hubbard_dict = {"Fe": 5.3, "Co": 3.32, "Cr": 3.7, "Mn": 3.9, "Mo": 4.38, "Ni": 6.2, "V": 3.25, "W": 6.2, "O": 0.0}
+hubbard_dict = {"Fe": 5.3, "Co": 3.32, "Cr": 3.7, "Mn": 3.9, "Mo": 4.38, "Ni": 6.2, "V": 3.25, "W": 6.2, "O": 0.0, "F": 0.0}
 
 #need to call the energy correction for the relax_job as well
 
@@ -116,7 +116,7 @@ def obtain_energy_correction(calc_name, structure):
             labels.append(title)
 
     if calc_name in ["UMA_OMAT", "PET_OAM_XL", "MACE_MPA_0"]:
-        if  any(element in metals_3d for element in elements) and "O" in elements:
+        if  any(element in metals_3d for element in elements) and ("O" in elements or "F" in elements):
             hubbards = {element: hubbard_dict[element] for element in elements if element in hubbard_dict}
             processed_entry = ComputedStructureEntry(
                 structure = structure,
