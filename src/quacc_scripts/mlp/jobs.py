@@ -139,7 +139,7 @@ def obtain_energy_correction(calc_name, structure):
 
         try:
             bva = BVAnalyzer()
-            entry.data["oxidation_states"] = {
+            processed_entry.data["oxidation_states"] = {
                 site.species.elements[0].name: bva.get_valences(structure)[i]
                 for i, site in enumerate(structure)
             }
