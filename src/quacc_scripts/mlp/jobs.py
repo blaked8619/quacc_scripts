@@ -131,7 +131,7 @@ def obtain_energy_correction(calc_name, structure):
                 parameters = {'run_type': 'GGA+U', 'potcar_symbols': labels, 'hubbards': hubbards, 'is_hubbard': True}
             )
         else:
-            processed_entry = ComputedStructureEntry(
+            processed_entry = ComputedStructureEntry( #this will automatically catch a lot of oxides already
                 structure = structure,
                 energy = 0.0,
                 parameters = {'run_type': 'GGA', 'potcar_symbols': labels}
@@ -146,7 +146,7 @@ def obtain_energy_correction(calc_name, structure):
         except Exception:
             oxi_states = structure.composition.oxi_state_guesses()
             if oxi_states:
-                entry.data["oxidation_states"] = oxi_states[0]
+                processed_entry.data["oxidation_states"] = oxi_states[0]
 
         processed_entry.energy_adjustments = MaterialsProject2020Compatibility().get_adjustments(processed_entry)
         correction = processed_entry.correction
