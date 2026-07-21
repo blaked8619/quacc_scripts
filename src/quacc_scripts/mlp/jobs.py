@@ -39,10 +39,9 @@ import time
 from pymatgen.core import Structure
 import os
 
-metals_3d = ["V", "Cr", "Mn", "Fe", "Co", "Ni", "W", "Mo"]
 
-#just for oxides
-hubbard_dict = {"Fe": 5.3, "Co": 3.32, "Cr": 3.7, "Mn": 3.9, "Mo": 4.38, "Ni": 6.2, "V": 3.25, "W": 6.2, "O": 0.0, "F": 0.0}
+
+
 
 #need to call the energy correction for the relax_job as well
 
@@ -51,6 +50,12 @@ def obtain_energy_correction(calc_name, structure):
     potcar_map = None
     # get unique elements in order they appear in structure
     elements = list(dict.fromkeys(str(s.specie.symbol) for s in structure))
+    metals_3d = ["V", "Cr", "Mn", "Fe", "Co", "Ni", "W", "Mo"]
+    #just for oxides and flourides
+
+
+    
+    hubbard_dict = {"Fe": 5.3, "Co": 3.32, "Cr": 3.7, "Mn": 3.9, "Mo": 4.38, "Ni": 6.2, "V": 3.25, "W": 6.2, "O": 0.0, "F": 0.0}
     
     if calc_name == "MACE_MPA_0" or calc_name == "PET_OAM_XL":
         potcar_base_path = "/home/ROSENGROUP/software/vasp/ase_potcars/vasp_potcars.original/potpaw_PBE"
@@ -129,6 +134,17 @@ def obtain_energy_correction(calc_name, structure):
                 energy = 0.0,
                 parameters = {'run_type': 'GGA', 'potcar_symbols': labels}
             )
+
+        try:
+            bva = BVAnalyzer()
+            entry.data["oxidation_states"] = {
+                site.species.elements[0].name: bva.get_valences(structure)[i]
+                for i, site in enumerate(structure)
+            }
+        except Exception:
+            oxi_states = structure.composition.oxi_state_guesses()
+            if oxi_states:
+                entry.data["oxidation_states"] = oxi_states[0]
 
         processed_entry.energy_adjustments = MaterialsProject2020Compatibility().get_adjustments(processed_entry)
         correction = processed_entry.correction
