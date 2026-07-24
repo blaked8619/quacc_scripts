@@ -271,7 +271,7 @@ def QHA_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="flo
     result["qha"].plot_qha()
     plt.savefig(f"QHA.png")
     
-    gibbs_energies = result["gibbs_free_energies"] + energy_correction
+    gibbs_energies = result["gibbs_free_energies"] # + energy_correction
     temperatures = result["temperatures"]
 
     data = np.column_stack((temperatures, gibbs_energies))
@@ -335,7 +335,7 @@ def relax_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="f
     structure = AseAtomsAdaptor.get_structure(atoms)
     energy_correction = obtain_energy_correction(calc_name, structure)
 
-    energy = atoms.get_potential_energy() + energy_correction
+    energy = atoms.get_potential_energy() #+ energy_correction
         
     write('CONTCAR', atoms, format='vasp')
     atoms.info = {}
