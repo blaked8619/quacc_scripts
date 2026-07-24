@@ -199,10 +199,10 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
         from mace.calculators import mace_mp
 
         if dispersion_correction == True:
-            #calc = mace_mp(model="/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MH-1-MATPES-R2SCAN/mace-mh-1.model", default_dtype=dtype, device="cuda", dispersion=True, dispersion_xc="r2scan", head="matpes_r2scan")
-            calc = mace_mp(model="/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MH-1-MATPES-R2SCAN/mace-mh-1.model", default_dtype=dtype, device="cuda", head="matpes_r2scan", dispersion=False)
-            dft_d4 = DFTD4(method="r2scan")
-            calc = SumCalculator([calc, dft_d4])
+            calc = mace_mp(model="/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MH-1-MATPES-R2SCAN/mace-mh-1.model", default_dtype=dtype, device="cuda", dispersion=True, dispersion_xc="r2scan", head="matpes_r2scan")
+            #calc = mace_mp(model="/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MH-1-MATPES-R2SCAN/mace-mh-1.model", default_dtype=dtype, device="cuda", head="matpes_r2scan", dispersion=False)
+            #dft_d4 = DFTD4(method="r2scan")
+            #calc = SumCalculator([calc, dft_d4])
         else:
             calc = mace_mp(model="/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MH-1-MATPES-R2SCAN/mace-mh-1.model", default_dtype=dtype, device="cuda", head="matpes_r2scan")
     
