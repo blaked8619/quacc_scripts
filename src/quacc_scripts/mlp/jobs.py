@@ -246,7 +246,7 @@ def QHA_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="flo
     result = QHACalc(
     calc,
     t_step=1,
-    t_max=1000,
+    t_max=1100,
     pressure=0.000101325,
     fmax=fmax,
     max_steps=100000,
