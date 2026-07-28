@@ -281,6 +281,7 @@ def QHA_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="flo
            fmt="%12.3f %15.7f",
            header=header_full)
 
+    frequency_modes = {}
     for i, ha_result in enumerate(result["ha"]):
         volume_index = i
         scale_factor = result["scale_factors"][i]
@@ -289,6 +290,12 @@ def QHA_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="flo
         frequencies_all = mesh_dict["frequencies"]
         qpoints = mesh_dict['qpoints']
 
+        frequency_modes[volume_index] = {
+            "scale_factor": scale_factor,
+            "qpoints":      qpoints,          # (n_qpoints, 3)
+            "frequencies":  frequencies_all,  # (n_qpoints, n_bands), THz
+        }
+        
         np.savetxt(f"all_frequencies_vol_{volume_index}_scale_{scale_factor:.3f}.txt", frequencies_all.flatten(),
         header=f"All frequencies from mesh (THz), volume {volume_index}, scale {scale_factor:.3f}")
 
@@ -316,7 +323,7 @@ def QHA_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="flo
         }
 
     
-    return {"thermal_properties": data, "energy_correction": energy_correction, "time": execution_time, "phonopy_settings": phonopy_settings}
+    return {"thermal_properties": data, "energy_correction": energy_correction, "time": execution_time, "phonopy_settings": phonopy_settings, "frequency_modes": frequency_modes}
 
 
 @job
