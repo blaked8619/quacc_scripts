@@ -290,7 +290,7 @@ def QHA_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="flo
         frequencies_all = mesh_dict["frequencies"]
         qpoints = mesh_dict['qpoints']
 
-        frequency_modes[volume_index] = {
+        frequency_modes[scale_factor] = {
             "scale_factor": scale_factor,
             "qpoints":      qpoints,          # (n_qpoints, 3)
             "frequencies":  frequencies_all,  # (n_qpoints, n_bands), THz
