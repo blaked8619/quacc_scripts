@@ -235,7 +235,7 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
     return calc
 
 @job
-def QHA_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="float64"):
+def QHA_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="float64", scale_factors, rattles):
 
     start_time = time.perf_counter()
     calc = choose_calc(calc_name, atoms, dispersion_correction, dtype)
@@ -253,8 +253,8 @@ def QHA_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="flo
     optimizer="FIRE",
     on_imaginary_modes="warn",
     imaginary_freq_tol=-0.1,
-    fix_imaginary_attempts=3,
-    scale_factors=tuple(np.arange(0.97, 1.03, 0.01).tolist()),
+    fix_imaginary_attempts=rattles,
+    scale_factors= scale_factors,    #tuple(np.arange(0.97, 1.03, 0.01).tolist())
     phonon_calc_kwargs={
         "min_length": 20.0,
         "atom_disp": 0.01,
