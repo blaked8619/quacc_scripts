@@ -235,7 +235,7 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
     return calc
 
 @job
-def QHA_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="float64", scale_factors, rattles):
+def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_correction=False, dtype="float64"):
 
     start_time = time.perf_counter()
     calc = choose_calc(calc_name, atoms, dispersion_correction, dtype)
