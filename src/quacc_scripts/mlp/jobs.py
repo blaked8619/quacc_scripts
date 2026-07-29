@@ -252,7 +252,7 @@ def QHA_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="flo
     max_steps=100000,
     optimizer="FIRE",
     on_imaginary_modes="warn",
-    imaginary_freq_tol=-0.1,
+    imaginary_freq_tol=-0.00001,
     fix_imaginary_attempts=rattles,
     scale_factors= scale_factors,    #tuple(np.arange(0.97, 1.03, 0.01).tolist())
     phonon_calc_kwargs={
