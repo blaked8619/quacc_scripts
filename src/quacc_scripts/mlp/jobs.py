@@ -278,11 +278,12 @@ def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_corr
     heat_capacity_P = result["heat_capacity_P"]
     gruneisen_parameters = result["gruneisen_parameters"]
     bulk_modulus_P = result["bulk_modulus_P"]
-    elecronic_energies = result["electronic_energies"]
-    pressures = result["pressure"]
-
-    data = np.column_stack((temperatures, gibbs_energies, electronic_energies, thermal_expansion_coefficients, heat_capacity_P, gruneisen_parameters, bulk_modulus_P, pressures))
-
+    electronic_energies = result["electronic_energies"]
+    scale_factors = result["scale_factors"]
+    
+    data = np.column_stack((temperatures, gibbs_energies, thermal_expansion_coefficients, heat_capacity_P, gruneisen_parameters, bulk_modulus_P))
+    volume_data = np.column_stack((scale_factors, volumes, electronic_energies))
+    
   #  header_full = "T (K)          Gibbs(eV)     "
  #   np.savetxt("thermal_properties_full.txt", data,
  #          fmt="%12.3f %15.7f",
