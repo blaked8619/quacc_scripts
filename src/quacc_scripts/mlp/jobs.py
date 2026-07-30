@@ -245,7 +245,7 @@ def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_corr
     
     result = QHACalc(
     calc,
-    t_step=2.0,
+    t_step=1.0,
     t_max=1100,
     pressure=0.000101325,
     fmax=fmax,
@@ -298,10 +298,16 @@ def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_corr
         frequencies_all = mesh_dict["frequencies"]
         qpoints = mesh_dict['qpoints']
 
+        imag_mask = frequencies_all < 0.0
+        qidx, _   = np.where(imag_mask)
         frequency_modes[scale_factor] = {
             "scale_factor": scale_factor,
-            "qpoints":      qpoints,          # (n_qpoints, 3)
-            "frequencies":  frequencies_all,  # (n_qpoints, n_bands), THz
+            "n_positive_modes":      int(np.count_nonzero(~imag_mask)),   # freq >= 0
+            "n_imaginary_modes":     int(imag_mask.sum()),
+            "imaginary_frequencies": frequencies_all[imag_mask],          # (n_imag,), all < 0 THz
+            "imaginary_qpoints":     qpoints[qidx],                       # (n_imag, 3)
+           # "qpoints":      qpoints,          # (n_qpoints, 3)
+          #  "frequencies":  frequencies_all,  # (n_qpoints, n_bands), THz
         }
         
         np.savetxt(f"all_frequencies_vol_{volume_index}_scale_{scale_factor:.3f}.txt", frequencies_all.flatten(),
