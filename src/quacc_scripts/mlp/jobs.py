@@ -245,7 +245,7 @@ def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_corr
     
     result = QHACalc(
     calc,
-    t_step=0.1,
+    t_step=1.0,
     t_max=1100,
     pressure=0.000101325,
     fmax=fmax,
@@ -331,7 +331,7 @@ def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_corr
         }
 
     
-    return {"thermal_properties": data, "energy_correction": energy_correction, "time": execution_time, "phonopy_settings": phonopy_settings, "frequency_modes": frequency_modes}
+    return {"thermal_properties": data, "energy_correction": energy_correction, "time": execution_time, "phonopy_settings": phonopy_settings, "frequency_modes": frequency_modes, "Tstep": 1.0}
 
 
 @job
