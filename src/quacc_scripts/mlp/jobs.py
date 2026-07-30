@@ -245,7 +245,7 @@ def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_corr
     
     result = QHACalc(
     calc,
-    t_step=1.0,
+    t_step=2.0,
     t_max=1100,
     pressure=0.000101325,
     fmax=fmax,
