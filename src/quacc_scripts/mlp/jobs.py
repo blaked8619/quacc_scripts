@@ -271,7 +271,7 @@ def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_corr
     result["qha"].plot_qha()
     plt.savefig(f"QHA.png")
     
-    gibbs_energies = result["gibbs_free_energies"] # + energy_correction
+    gibbs_energies = result["gibbs_free_energies"]
     temperatures = result["temperatures"]
     thermal_expansion_coefficients = result["thermal_expansion_coefficients"]
     volumes = result["volumes"]
@@ -283,11 +283,6 @@ def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_corr
     
     data = np.column_stack((temperatures, gibbs_energies, thermal_expansion_coefficients, heat_capacity_P, gruneisen_parameters, bulk_modulus_P))
     volume_data = np.column_stack((scale_factors, volumes, electronic_energies))
-    
-  #  header_full = "T (K)          Gibbs(eV)     "
- #   np.savetxt("thermal_properties_full.txt", data,
- #          fmt="%12.3f %15.7f",
-   #        header=header_full)
 
     frequency_modes = {}
     for i, ha_result in enumerate(result["ha"]):
@@ -356,7 +351,7 @@ def relax_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="f
     structure = AseAtomsAdaptor.get_structure(atoms)
     energy_correction = obtain_energy_correction(calc_name, structure)
 
-    energy = atoms.get_potential_energy() #+ energy_correction
+    energy = atoms.get_potential_energy()
         
     write('CONTCAR', atoms, format='vasp')
     atoms.info = {}
