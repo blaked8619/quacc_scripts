@@ -187,8 +187,7 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
 
     elif calc_name == "NequIP_OAM_XL":
         from nequip.integrations.ase import NequIPCalculator
-
-    calc = NequIPCalculator.from_compiled_model(compile_path="NequIP-OAM-XL.pt2", device="cuda")
+        calc = NequIPCalculator.from_compiled_model(compile_path="NequIP-OAM-XL.pt2", device="cuda")
 
     elif calc_name == "MACE_MATPES_r2SCAN_0":
         from mace.calculators import MACECalculator
