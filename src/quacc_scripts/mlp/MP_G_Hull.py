@@ -171,7 +171,7 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
         from fairchem.core.units.mlip_unit import load_predict_unit
         from fairchem.core.units.mlip_unit.predict import InferenceSettings
         
-        checkpoint = "/home/bd8619/.cache/fairchem/models--facebook--UMA/snapshots/7210de6fe86ad94854b21b881fefbcfdfeab373b/checkpoints/uma-s-1p2.pt"
+        checkpoint = "/home/bd8619/.cache/fairchem/models--facebook--UMA/snapshots/f611b917d9c68566bbbeccbb0aa0f7cad1696cb2/checkpoints/uma-s-1p2p1.pt"
         predictor = load_predict_unit(checkpoint, device="cuda", inference_settings=InferenceSettings(base_precision_dtype=dtype))
         calc = FAIRChemCalculator(predictor, task_name="omat")
 
