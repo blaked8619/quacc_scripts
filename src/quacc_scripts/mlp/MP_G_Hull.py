@@ -154,19 +154,7 @@ def obtain_energy_correction(calc_name, structure):
 
 def choose_calc(calc_name, atoms, dispersion_correction, dtype):
     
-    if calc_name == "vasp_OMAT":
-        import os
-        os.environ["ASE_VASP_COMMAND"] = "srun vasp_std"
-        
-        from quacc.calculators.vasp import Vasp
-        from fairchem.data.omat.vasp.sets import OMat24StaticSet
-
-        calc_defaults = MPtoASEConverter(atoms=atoms).convert_input_set(OMat24StaticSet())
-        calc_defaults |= {"pp_version": "54", "incar_copilot": "light"}
-        
-        calc = Vasp(calc_defaults)
-
-    elif calc_name == "UMA_OMAT":
+    if calc_name == "UMA_OMAT":
         from fairchem.core import pretrained_mlip, FAIRChemCalculator
         from fairchem.core.units.mlip_unit import load_predict_unit
         from fairchem.core.units.mlip_unit.predict import InferenceSettings
@@ -189,6 +177,14 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
 
         calc = MACECalculator(model_paths=["/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MPA-0/mace-mpa-0-medium.model"], device="cuda", default_dtype=dtype)
 
+    elif calc_name == "GRACE_2L_SMAX_OMAT_large":
+        from tensorpotential.calculator import TPCalculator  #Default for TPCaclulator is Float64
+        calc = TPCalculator("/home/bd8619/.cache/grace/GRACE-2L-SMAX-OMAT-large/", mode="uniform")
+    
+    elif calc_name == "GRACE_3L_OMAT_large_ft_AM":
+        from tensorpotential.calculator import TPCalculator
+        calc = TPCalculator("/home/bd8619/.cache/grace/GRACE-3L-OMAT-large-ft-AM/", mode="uniform")
+    
     elif calc_name == "MACE_MATPES_r2SCAN_0":
         from mace.calculators import MACECalculator
 
@@ -197,14 +193,15 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
 
     elif calc_name == "MACE_MH_1_MATPES_r2SCAN":  #the built in dispersion correction here is just the TorchDFTD3Calculator
         from mace.calculators import mace_mp
-
-        if dispersion_correction == True:
-            calc = mace_mp(model="/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MH-1-MATPES-R2SCAN/mace-mh-1.model", default_dtype=dtype, device="cuda", dispersion=True, dispersion_xc="r2scan", head="matpes_r2scan")
+        calc = mace_mp(model="/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MH-1-MATPES-R2SCAN/mace-mh-1.model", default_dtype=dtype, device="cuda", head="matpes_r2scan")
+        
+ #       if dispersion_correction == True:
+#            calc = mace_mp(model="/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MH-1-MATPES-R2SCAN/mace-mh-1.model", default_dtype=dtype, device="cuda", dispersion=True, dispersion_xc="r2scan", head="matpes_r2scan")
             #calc = mace_mp(model="/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MH-1-MATPES-R2SCAN/mace-mh-1.model", default_dtype=dtype, device="cuda", head="matpes_r2scan", dispersion=False)
             #dft_d4 = DFTD4(method="r2scan")
             #calc = SumCalculator([calc, dft_d4])
-        else:
-            calc = mace_mp(model="/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MH-1-MATPES-R2SCAN/mace-mh-1.model", default_dtype=dtype, device="cuda", head="matpes_r2scan")
+#        else:
+#            calc = mace_mp(model="/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MH-1-MATPES-R2SCAN/mace-mh-1.model", default_dtype=dtype, device="cuda", head="matpes_r2scan")
     
     elif calc_name == "TensorNet_MatPES_r2SCAN":
         import matgl
@@ -222,15 +219,15 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
             
         calc = PESCalculator(potential=model)
 
-    if dispersion_correction==True and calc_name in ["UMA_OMAT", "PET_OAM_XL", "MACE_MPA_0"]:
-        device="cpu"
-        dft_d3 = TorchDFTD3Calculator(device=device, xc="pbe", damping="bj")
-        calc = SumCalculator([calc, dft_d3])
-    elif dispersion_correction==True and calc_name in ["PET_OMATPES_L", "MACE_MATPES_r2SCAN_0", "TensorNet_MatPES_r2SCAN"]:
-        device="cpu"
+#    if dispersion_correction==True and calc_name in ["UMA_OMAT", "PET_OAM_XL", "MACE_MPA_0"]:
+#        device="cpu"
+#        dft_d3 = TorchDFTD3Calculator(device=device, xc="pbe", damping="bj")
+#        calc = SumCalculator([calc, dft_d3])
+#    elif dispersion_correction==True and calc_name in ["PET_OMATPES_L", "MACE_MATPES_r2SCAN_0", "TensorNet_MatPES_r2SCAN"]:
+#        device="cpu"
         #dft_d3 = TorchDFTD3Calculator(device=device, xc="r2scan", damping="bj")
-        dft_d4 = DFTD4(method="r2scan")
-        calc = SumCalculator([calc, dft_d4])
+ #       dft_d4 = DFTD4(method="r2scan")
+#        calc = SumCalculator([calc, dft_d4])
     
     return calc
 
