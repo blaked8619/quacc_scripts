@@ -188,6 +188,10 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
         from nequip.integrations.ase import NequIPCalculator #defualt should be float64
         calc = NequIPCalculator.from_compiled_model(compile_path="/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/NequIP-OAM-XL/NequIP-OAM-XL.nequip.pt2", device=device)
 
+    elif calc_name == "SevenNet_Omni_MATPES_R2SCAN":
+        from sevenn.calculator import SevenNetCalculator
+        calc = SevenNetCalculator(model='/home/bd8619/.conda/envs/nequip/lib/python3.11/site-packages/sevenn/pretrained_potentials/SevenNet_omni/checkpoint_sevennet_omni.pth', modal='matpes_r2scan', device=device)
+
     elif calc_name == "TECE_OAM_RRA_1.0":
         from tace.foundations import tace_foundations
         from tace.interface.ase import TACEAseCalc, add_dispersion
