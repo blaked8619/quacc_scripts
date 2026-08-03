@@ -153,6 +153,7 @@ def obtain_energy_correction(calc_name, structure):
     return correction
 
 def choose_calc(calc_name, atoms, dispersion_correction, dtype):
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     
     if calc_name == "UMA_OMAT":
         from fairchem.core import pretrained_mlip, FAIRChemCalculator
@@ -160,22 +161,20 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
         from fairchem.core.units.mlip_unit.predict import InferenceSettings
         
         checkpoint = "/home/bd8619/.cache/fairchem/models--facebook--UMA/snapshots/f611b917d9c68566bbbeccbb0aa0f7cad1696cb2/checkpoints/uma-s-1p2p1.pt"
-        predictor = load_predict_unit(checkpoint, device="cuda", inference_settings=InferenceSettings(base_precision_dtype=dtype))
+        predictor = load_predict_unit(checkpoint, device=device, inference_settings=InferenceSettings(base_precision_dtype=dtype))
         calc = FAIRChemCalculator(predictor, task_name="omat")
 
     elif calc_name == "PET_OAM_XL":
         from upet.calculator import UPETCalculator
-        calc = UPETCalculator(checkpoint_path="/scratch/gpfs/ROSENGROUP/bd8619/checkpoints/PET-OAM-XL/pet-oam-xl-v1.0.0.ckpt", dtype= dtype, device="cuda")
+        calc = UPETCalculator(checkpoint_path="/scratch/gpfs/ROSENGROUP/bd8619/checkpoints/PET-OAM-XL/pet-oam-xl-v1.0.0.ckpt", dtype= dtype, device=device)
 
-    
     elif calc_name == "PET_OMATPES_L":
         from upet.calculator import UPETCalculator
-        calc = UPETCalculator(checkpoint_path="/scratch/gpfs/ROSENGROUP/bd8619/checkpoints/PET-OMATPES-L/pet-omatpes-l-v0.1.0.ckpt", dtype=dtype, device="cuda")
+        calc = UPETCalculator(checkpoint_path="/scratch/gpfs/ROSENGROUP/bd8619/checkpoints/PET-OMATPES-L/pet-omatpes-l-v0.1.0.ckpt", dtype=dtype, device=device)
 
     elif calc_name == "MACE_MPA_0":
         from mace.calculators import MACECalculator
-
-        calc = MACECalculator(model_paths=["/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MPA-0/mace-mpa-0-medium.model"], device="cuda", default_dtype=dtype)
+        calc = MACECalculator(model_paths=["/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MPA-0/mace-mpa-0-medium.model"], device=device, default_dtype=dtype)
 
     elif calc_name == "GRACE_2L_SMAX_OMAT_large":
         from tensorpotential.calculator import TPCalculator  #Default for TPCaclulator is Float64
@@ -186,14 +185,17 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
         calc = TPCalculator("/home/bd8619/.cache/grace/GRACE-3L-OMAT-large-ft-AM/", mode="uniform")
 
     elif calc_name == "NequIP_OAM_XL":
-        from nequip.integrations.ase import NequIPCalculator
-        calc = NequIPCalculator.from_compiled_model(compile_path="/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/NequIP-OAM-XL/NequIP-OAM-XL.nequip.pt2", device="cuda")
+        from nequip.integrations.ase import NequIPCalculator #defualt should be float64
+        calc = NequIPCalculator.from_compiled_model(compile_path="/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/NequIP-OAM-XL/NequIP-OAM-XL.nequip.pt2", device=device)
+
+    elif calc_name == "TECE_OAM_RRA_1.0":
+        from tace.foundations import tace_foundations
+        from tace.interface.ase import TACEAseCalc, add_dispersion
+        calc = TACEAseCalc(model="/home/bd8619/.cache/tace/TECE-OAM-RRA-1.0.pt", dtype=dtype, device=device, fidelity_idx=0)
 
     elif calc_name == "MACE_MATPES_r2SCAN_0":
         from mace.calculators import MACECalculator
-
-        calc = MACECalculator(
-        model_paths=["/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MATPES-r2SCAN-0/MACE-matpes-r2scan-omat-ft.model"], device="cuda", default_dtype=dtype)
+        calc = MACECalculator(model_paths=["/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MATPES-r2SCAN-0/MACE-matpes-r2scan-omat-ft.model"], device="cuda", default_dtype=dtype)
 
     elif calc_name == "MACE_MH_1_MATPES_r2SCAN":  #the built in dispersion correction here is just the TorchDFTD3Calculator
         from mace.calculators import mace_mp
@@ -211,7 +213,6 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
         import matgl
         from matgl.ext.ase import PESCalculator
         import torch
-
         model = matgl.load_model("/home/bd8619/.cache/matgl/models--materialyze--TensorNet-PES-MatPES-r2SCAN-2025.2-m/snapshots/0e4ef6457eb41db1e8b957bed9337fd4fbac3d89/")
         
         if dtype == "float64":
