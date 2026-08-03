@@ -153,7 +153,7 @@ def obtain_energy_correction(calc_name, structure):
     return correction
 
 def choose_calc(calc_name, atoms, dispersion_correction, dtype):
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    device = "cuda"
     
     if calc_name == "UMA_OMAT":
         from fairchem.core import pretrained_mlip, FAIRChemCalculator
@@ -182,7 +182,7 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
     
     elif calc_name == "GRACE_3L_OMAT_large_ft_AM":
         from tensorpotential.calculator import TPCalculator
-        calc = TPCalculator("/home/bd8619/.cache/grace/GRACE-3L-OMAT-large-ft-AM/", mode="uniform")
+        calc = TPCalculator("/home/bd8619/.cache/grace/GRACE-3L-OMAT-large-ft-AM/", mode="uniform") #check device
 
     elif calc_name == "NequIP_OAM_XL":
         from nequip.integrations.ase import NequIPCalculator #defualt should be float64
@@ -191,15 +191,15 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
     elif calc_name == "TECE_OAM_RRA_1.0":
         from tace.foundations import tace_foundations
         from tace.interface.ase import TACEAseCalc, add_dispersion
-        calc = TACEAseCalc(model="/home/bd8619/.cache/tace/TECE-OAM-RRA-1.0.pt", dtype=dtype, device=device, fidelity_idx=0)
+        calc = TACEAseCalc(model="/home/bd8619/.cache/tace/TECE-OAM-RRA-1.0.pt", dtype=dtype, device=device, fidelity_idx=0) #check fidelity_idx
 
     elif calc_name == "MACE_MATPES_r2SCAN_0":
         from mace.calculators import MACECalculator
-        calc = MACECalculator(model_paths=["/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MATPES-r2SCAN-0/MACE-matpes-r2scan-omat-ft.model"], device="cuda", default_dtype=dtype)
+        calc = MACECalculator(model_paths=["/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MATPES-r2SCAN-0/MACE-matpes-r2scan-omat-ft.model"], device=device, default_dtype=dtype)
 
     elif calc_name == "MACE_MH_1_MATPES_r2SCAN":  #the built in dispersion correction here is just the TorchDFTD3Calculator
         from mace.calculators import mace_mp
-        calc = mace_mp(model="/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MH-1-MATPES-R2SCAN/mace-mh-1.model", default_dtype=dtype, device="cuda", head="matpes_r2scan")
+        calc = mace_mp(model="/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MH-1-MATPES-R2SCAN/mace-mh-1.model", default_dtype=dtype, device=device, head="matpes_r2scan")
         
  #       if dispersion_correction == True:
 #            calc = mace_mp(model="/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MH-1-MATPES-R2SCAN/mace-mh-1.model", default_dtype=dtype, device="cuda", dispersion=True, dispersion_xc="r2scan", head="matpes_r2scan")
