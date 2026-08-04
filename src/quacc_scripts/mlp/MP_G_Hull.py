@@ -334,17 +334,23 @@ def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_corr
 
 
 @job
-def relax_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="float64"):
+def relax_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="float64", max_steps=1000):
     start_time = time.perf_counter()
     write('POSCAR', atoms, format='vasp')
 
     calc = choose_calc(calc_name, atoms, dispersion_correction, dtype)
     atoms.calc = calc
-    
-    filtered_atoms = FrechetCellFilter(atoms)
 
+    filtered_atoms = FrechetCellFilter(atoms)
     dyn = BFGS(filtered_atoms, trajectory='relaxation.traj', logfile='relax.log')
-    dyn.run(fmax=fmax)
+    converged = dyn.run(fmax=fmax, steps=max_steps)
+
+    if not converged:
+        raise RuntimeError(
+            f"{calc_name}: relaxation did not reach fmax={fmax} eV/Å "
+            f"within {max_steps} steps (final fmax="
+            f"{np.sqrt((filtered_atoms.get_forces()**2).sum(axis=1).max()):.4f})"
+        )
 
     structure = AseAtomsAdaptor.get_structure(atoms)
     energy_correction = obtain_energy_correction(calc_name, structure)
