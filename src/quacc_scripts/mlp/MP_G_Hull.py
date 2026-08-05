@@ -140,7 +140,7 @@ def obtain_energy_correction(calc_name, structure):
                 processed_entry.data["oxidation_states"] = oxi_states[0]
 
         processed_entry.energy_adjustments = MaterialsProject2020Compatibility().get_adjustments(processed_entry)
-        correction = processed_entry.correction
+        correction = processed_entry.correction #this is returned as a total energy in eV (NOT ev/atom)
 
     return correction
 
