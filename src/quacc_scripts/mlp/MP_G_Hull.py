@@ -182,12 +182,12 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
 
     elif calc_name == "SevenNet_Omni_MATPES_R2SCAN":
         from sevenn.calculator import SevenNetCalculator
-        calc = SevenNetCalculator(model='/home/bd8619/.conda/envs/nequip/lib/python3.11/site-packages/sevenn/pretrained_potentials/SevenNet_omni/checkpoint_sevennet_omni.pth', modal='matpes_r2scan', device="cpu")
+        calc = SevenNetCalculator(model='/home/bd8619/.conda/envs/nequip/lib/python3.11/site-packages/sevenn/pretrained_potentials/SevenNet_omni/checkpoint_sevennet_omni.pth', modal='matpes_r2scan', device=device)
 
     elif calc_name == "TECE_OAM_RRA_1.0":
         from tace.foundations import tace_foundations
         from tace.interface.ase import TACEAseCalc, add_dispersion
-        calc = TACEAseCalc(model="/home/bd8619/.cache/tace/TECE-OAM-RRA-1.0.pt", dtype=dtype, device="cpu", fidelity_idx=0) #check fidelity_idx
+        calc = TACEAseCalc(model="/home/bd8619/.cache/tace/TECE-OAM-RRA-1.0.pt", dtype=dtype, device=device, fidelity_idx=0) #check fidelity_idx
 
     elif calc_name == "MACE_MATPES_r2SCAN_0":
         from mace.calculators import MACECalculator
