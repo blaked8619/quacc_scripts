@@ -171,7 +171,7 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
         from fairchem.core.units.mlip_unit.predict import InferenceSettings
 
         checkpoint = "/home/bd8619/.cache/aryan/HSE06_UMA_FASTPES/inference_ckpt.pt"
-        redictor = load_predict_unit(checkpoint, device=device, inference_settings=InferenceSettings(base_precision_dtype=dtype))
+        predictor = load_predict_unit(checkpoint, device=device, inference_settings=InferenceSettings(base_precision_dtype=dtype))
         calc = FAIRChemCalculator(predictor, task_name="omat")
     
     elif calc_name == "PET_OAM_XL":
