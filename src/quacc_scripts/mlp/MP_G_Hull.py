@@ -74,7 +74,7 @@ def obtain_energy_correction(calc_name, structure):
             "Xe": "Xe", "Y": "Y_sv", "Yb": "Yb_2", "Zn": "Zn", "Zr": "Zr_sv",
         }
 
-    elif calc_name == "UMA_OMAT" or calc_name == "GRACE_2L_SMAX_OMAT_large" or calc_name == "UMA_HSE06":
+    elif calc_name == "UMA_OMAT" or calc_name == "GRACE_2L_SMAX_OMAT_large":
         potcar_base_path = "/home/ROSENGROUP/software/vasp/ase_potcars/vasp_potcars.54/potpaw_PBE"
         #defualt OMAT potcar map
         potcar_map = {
@@ -155,6 +155,7 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
         checkpoint = "/home/bd8619/.cache/fairchem/models--facebook--UMA/snapshots/f611b917d9c68566bbbeccbb0aa0f7cad1696cb2/checkpoints/uma-s-1p2p1.pt"
         predictor = load_predict_unit(checkpoint, device=device, inference_settings=InferenceSettings(base_precision_dtype=dtype))
         calc = FAIRChemCalculator(predictor, task_name="omat")
+        
     elif calc_name == "UMA_HSE06":
         from fairchem.core import pretrained_mlip, FAIRChemCalculator
         from fairchem.core.units.mlip_unit import load_predict_unit
@@ -162,6 +163,15 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
 
         checkpoint = "/home/bd8619/.cache/aryan/HSE06_UMA/inference_ckpt.pt"
         predictor = load_predict_unit(checkpoint, device=device, inference_settings=InferenceSettings(base_precision_dtype=dtype))
+        calc = FAIRChemCalculator(predictor, task_name="omat")
+        
+    elif calc_name == "UMA_HSE06_FASTPES":
+        from fairchem.core import pretrained_mlip, FAIRChemCalculator
+        from fairchem.core.units.mlip_unit import load_predict_unit
+        from fairchem.core.units.mlip_unit.predict import InferenceSettings
+
+        checkpoint = "/home/bd8619/.cache/aryan/HSE06_UMA_FASTPES/inference_ckpt.pt":
+        redictor = load_predict_unit(checkpoint, device=device, inference_settings=InferenceSettings(base_precision_dtype=dtype))
         calc = FAIRChemCalculator(predictor, task_name="omat")
     
     elif calc_name == "PET_OAM_XL":
