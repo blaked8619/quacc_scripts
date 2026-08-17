@@ -50,7 +50,7 @@ def obtain_energy_correction(calc_name, structure):
 
     hubbard_dict = {"Fe": 5.3, "Co": 3.32, "Cr": 3.7, "Mn": 3.9, "Mo": 4.38, "Ni": 6.2, "V": 3.25, "W": 6.2, "O": 0.0, "F": 0.0}
     
-    if calc_name == "MACE_MPA_0" or calc_name == "PET_OAM_XL" or calc_name == "GRACE_3L_OMAT_large_ft_AM" or calc_name == "NequIP_OAM_XL" or calc_name == "TECE_OAM_RRA_1.0":
+    if calc_name in ["MACE_MPA_0", "PET_OAM_XL", "GRACE_3L_OMAT_large_ft_AM", "NequIP_OAM_XL", "TECE_OAM_RRA_1.0"]:
         potcar_base_path = "/home/ROSENGROUP/software/vasp/ase_potcars/vasp_potcars.original/potpaw_PBE"
         # default MP potcar map (from MPRelaxSet.yaml)
         potcar_map = {
@@ -74,7 +74,7 @@ def obtain_energy_correction(calc_name, structure):
             "Xe": "Xe", "Y": "Y_sv", "Yb": "Yb_2", "Zn": "Zn", "Zr": "Zr_sv",
         }
 
-    elif calc_name == "UMA_OMAT" or calc_name == "GRACE_2L_SMAX_OMAT_large":
+    elif ["UMA_OMAT", "GRACE_2L_SMAX_OMAT_large"]:
         potcar_base_path = "/home/ROSENGROUP/software/vasp/ase_potcars/vasp_potcars.54/potpaw_PBE"
         #defualt OMAT potcar map
         potcar_map = {
@@ -113,7 +113,7 @@ def obtain_energy_correction(calc_name, structure):
         
             labels.append(title)
 
-    if calc_name in ["UMA_OMAT", "PET_OAM_XL", "MACE_MPA_0"]:
+    if calc_name in ["UMA_OMAT", "PET_OAM_XL", "MACE_MPA_0", "GRACE_3L_OMAT_large_ft_AM", "NequIP_OAM_XL", "TECE_OAM_RRA_1.0", "GRACE_2L_SMAX_OMAT_large"]:
         if  any(element in metals_3d for element in elements) and ("O" in elements or "F" in elements):
             hubbards = {element: hubbard_dict[element] for element in elements if element in hubbard_dict}
             processed_entry = ComputedStructureEntry(
