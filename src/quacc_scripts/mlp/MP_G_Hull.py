@@ -74,7 +74,7 @@ def obtain_energy_correction(calc_name, structure):
             "Xe": "Xe", "Y": "Y_sv", "Yb": "Yb_2", "Zn": "Zn", "Zr": "Zr_sv",
         }
 
-    elif ["UMA_OMAT", "GRACE_2L_SMAX_OMAT_large"]:
+    elif calc_name in ["UMA_OMAT", "GRACE_2L_SMAX_OMAT_large"]:
         potcar_base_path = "/home/ROSENGROUP/software/vasp/ase_potcars/vasp_potcars.54/potpaw_PBE"
         #defualt OMAT potcar map
         potcar_map = {
