@@ -215,14 +215,6 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
         from mace.calculators import mace_mp
         calc = mace_mp(model="/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MH-1-MATPES-R2SCAN/mace-mh-1.model", default_dtype=dtype, device=device, head="matpes_r2scan")
         
- #       if dispersion_correction == True:
-#            calc = mace_mp(model="/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MH-1-MATPES-R2SCAN/mace-mh-1.model", default_dtype=dtype, device="cuda", dispersion=True, dispersion_xc="r2scan", head="matpes_r2scan")
-            #calc = mace_mp(model="/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MH-1-MATPES-R2SCAN/mace-mh-1.model", default_dtype=dtype, device="cuda", head="matpes_r2scan", dispersion=False)
-            #dft_d4 = DFTD4(method="r2scan")
-            #calc = SumCalculator([calc, dft_d4])
-#        else:
-#            calc = mace_mp(model="/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MH-1-MATPES-R2SCAN/mace-mh-1.model", default_dtype=dtype, device="cuda", head="matpes_r2scan")
-    
     elif calc_name == "TensorNet_MatPES_r2SCAN":
         import matgl
         from matgl.ext.ase import PESCalculator
@@ -238,16 +230,6 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
             
         calc = PESCalculator(potential=model)
 
-#    if dispersion_correction==True and calc_name in ["UMA_OMAT", "PET_OAM_XL", "MACE_MPA_0"]:
-#        device="cpu"
-#        dft_d3 = TorchDFTD3Calculator(device=device, xc="pbe", damping="bj")
-#        calc = SumCalculator([calc, dft_d3])
-#    elif dispersion_correction==True and calc_name in ["PET_OMATPES_L", "MACE_MATPES_r2SCAN_0", "TensorNet_MatPES_r2SCAN"]:
-#        device="cpu"
-        #dft_d3 = TorchDFTD3Calculator(device=device, xc="r2scan", damping="bj")
- #       dft_d4 = DFTD4(method="r2scan")
-#        calc = SumCalculator([calc, dft_d4])
-    
     return calc
 
 @job
@@ -270,7 +252,7 @@ def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_corr
     on_imaginary_modes="warn",
     imaginary_freq_tol=imaginary_freq_tol,
     fix_imaginary_attempts=rattles,
-    scale_factors= scale_factors,    #tuple(np.arange(0.97, 1.03, 0.01).tolist())
+    scale_factors= scale_factors,    
     phonon_calc_kwargs={
         "min_length": 20.0,
         "atom_disp": 0.01,
@@ -317,8 +299,6 @@ def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_corr
             "n_imaginary_modes":     int(imag_mask.sum()),
             "imaginary_frequencies": frequencies_all[imag_mask],          # (n_imag,), all < 0 THz
             "imaginary_qpoints":     qpoints[qidx],                       # (n_imag, 3)
-           # "qpoints":      qpoints,          # (n_qpoints, 3)
-          #  "frequencies":  frequencies_all,  # (n_qpoints, n_bands), THz
         }
         
         np.savetxt(f"all_frequencies_vol_{volume_index}_scale_{scale_factor:.3f}.txt", frequencies_all.flatten(),
@@ -383,59 +363,10 @@ def relax_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="f
     
     return {"output_atoms": atoms, "energy": energy, "energy_correction": energy_correction, "time": execution_time}
 
-def mini_choose_calc(method):
-    if method =="meta":
-        from fairchem.core import pretrained_mlip, FAIRChemCalculator
-        model_name = "uma-s-1p2"
-        predictor = pretrained_mlip.get_predict_unit(model_name)
-        calc = FAIRChemCalculator(predictor, task_name="omol")
-    elif method == "mace-medium":
-        from mace.calculators import mace_polar
-        calc = mace_polar(
-        model="polar-1-m",
-        device="cpu",
-        default_dtype="float64"
-        )
-    elif method == "mace-large":
-        from mace.calculators import mace_polar
-        calc = mace_polar(
-        model="polar-1-l",
-        device="cpu",
-        default_dtype="float64"
-        )
-    
-    return calc
-
 #@job
-def relax_gas(atoms, fmax, spin_multiplicity, method):
+def relax_gas(atoms, fmax, calc_name, dispersion_correction=False, dtype="float64"):
 
-    #spin_multiplicity = atoms.info['spin']
-    #try:
-    #    magmoms = atoms.get_initial_magnetic_moments()
-    #    total_magmom = np.sum(magmoms)
-
-        # Spin multiplicity = |total magnetization| + 1
-        # I'm not sure if this is exactly correct but I verified for each gas that the spin_multiplicity matched what is expected
-       # spin_multiplicity = int(round(abs(total_magmom))) + 1
-
-        # Store it
-      #  atoms.info['spin'] = spin_multiplicity
-
-       # print(f"Total magnetization: {total_magmom:.2f}")
-        #print(f"Inferred spin multiplicity: {spin_multiplicity}")
-   # except:
-    #    magmoms = None
-     #   print("No magnetic moments found (non-spin-polarized calculation)")
-      #  atoms.info['spin'] = 1  # Default to singlet
-
-    
-    atoms.info['spin'] = spin_multiplicity
-
-    #atoms.set_cell([20, 20, 20])
-    #atoms.pbc = False
-    #atoms.center()
-    
-    calc = mini_choose_calc(method)
+    calc = choose_calc(calc_name, atoms, dispersion_correction, dtype)
     atoms.calc = calc
     
     dyn = BFGS(atoms, trajectory='relaxation.traj', logfile='relax.log')
@@ -448,17 +379,14 @@ def relax_gas(atoms, fmax, spin_multiplicity, method):
     with open("output_energy.txt", "w") as file:
         file.write(str(mlip_energy))
     
-    return {"output_atoms": atoms, "mlip_energy": mlip_energy, "spin_multiplicity": atoms.info['spin']}
+    return {"output_atoms": atoms, "mlip_energy": mlip_energy}
 
 #@job
-def gas_vibrations(atoms, mlip_energy, spin_multiplicity, method):
+def gas_vibrations(atoms, mlip_energy, spin_multiplicity, calc_name, dispersion_correction=False, dtype="float64"):
     
- 
-    calc = mini_choose_calc(method)
+    calc = choose_calc(calc_name, atoms, dispersion_correction, dtype)
     atoms.calc = calc
     atoms.info['spin'] = spin_multiplicity
-
-    #atoms.pbc = False
     
     vib = Vibrations(atoms)
     vib.run()
@@ -513,7 +441,7 @@ def gas_vibrations(atoms, mlip_energy, spin_multiplicity, method):
     enthalpy = []
     entropy = []
 
-    pressure = 100000  # Pa (1bar), 0 atm would diverge to infinity for Gibbs
+    pressure = 101325  # Pa (1bar), 0 atm would diverge to infinity for Gibbs
 
     kB = units.kB #boltzmann constant
 
