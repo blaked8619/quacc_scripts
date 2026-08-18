@@ -443,11 +443,11 @@ def gas_vibrations(atoms, mlip_energy, spin_multiplicity, calc_name, dispersion_
     true_vib_energy = max(vib_energies, key=lambda e: e.real).real
     vib_energies_for_thermo = [true_vib_energy]
     if true_vib_energy <= 0:
-    raise RuntimeError(
-        f"{calc_name}/{gas}: expected largest vibrational mode to be real and "
-        f"positive (a genuine bond stretch), got {true_vib_energy:.4f} eV — "
-        f"structure may not be relaxed to a true minimum. Full modes: {vib_energies}"
-    )
+        raise RuntimeError(
+            f"{calc_name}/{gas}: expected largest vibrational mode to be real and "
+            f"positive (a genuine bond stretch), got {true_vib_energy:.4f} eV — "
+            f"structure may not be relaxed to a true minimum. Full modes: {vib_energies}"
+        )
     
     igt = IdealGasThermo(vib_energies_for_thermo, geometry, potentialenergy=mlip_energy, atoms=atoms, symmetrynumber=sym, spin=spin)
 
