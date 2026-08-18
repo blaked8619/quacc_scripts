@@ -376,7 +376,7 @@ def relax_gas(atoms, fmax, calc_name, dispersion_correction=False, dtype="float6
         raise RuntimeError(
             f"{calc_name}: relaxation did not reach fmax={fmax} eV/Å "
             f"within {max_steps} steps (final fmax="
-            f"{np.sqrt((filtered_atoms.get_forces()**2).sum(axis=1).max()):.4f})"
+            f"{np.sqrt((atoms.get_forces()**2).sum(axis=1).max()):.4f})"
         )
     
     write('structure.xyz', atoms)
@@ -439,8 +439,17 @@ def gas_vibrations(atoms, mlip_energy, spin_multiplicity, calc_name, dispersion_
 
     #find the spin quantum number
     spin = (atoms.info['spin'] - 1)/2 # need to change spin_multiplcity from atoms.info to a total spin
+
+    true_vib_energy = max(vib_energies, key=lambda e: e.real).real
+    vib_energies_for_thermo = [true_vib_energy]
+    if true_vib_energy <= 0:
+    raise RuntimeError(
+        f"{calc_name}/{gas}: expected largest vibrational mode to be real and "
+        f"positive (a genuine bond stretch), got {true_vib_energy:.4f} eV — "
+        f"structure may not be relaxed to a true minimum. Full modes: {vib_energies}"
+    )
     
-    igt = IdealGasThermo(vib_energies, geometry, potentialenergy=mlip_energy, atoms=atoms, symmetrynumber=sym, spin=spin)
+    igt = IdealGasThermo(vib_energies_for_thermo, geometry, potentialenergy=mlip_energy, atoms=atoms, symmetrynumber=sym, spin=spin)
 
     #find the corrections
     temperatures = np.arange(0, 1001, 1)  # 0 to 1000 K, step of 1 K
