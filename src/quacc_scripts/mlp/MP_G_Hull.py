@@ -363,7 +363,7 @@ def relax_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="f
     
     return {"output_atoms": atoms, "energy": energy, "energy_correction": energy_correction, "time": execution_time}
 
-#@job
+@job
 def relax_gas(atoms, fmax, calc_name, dispersion_correction=False, dtype="float64", max_steps=1000):
 
     calc = choose_calc(calc_name, atoms, dispersion_correction, dtype)
@@ -388,7 +388,7 @@ def relax_gas(atoms, fmax, calc_name, dispersion_correction=False, dtype="float6
     
     return {"output_atoms": atoms, "mlip_energy": mlip_energy}
 
-#@job
+@job
 def gas_vibrations(atoms, mlip_energy, spin_multiplicity, calc_name, dispersion_correction=False, dtype="float64"):
     
     calc = choose_calc(calc_name, atoms, dispersion_correction, dtype)
