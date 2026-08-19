@@ -439,7 +439,8 @@ def gas_vibrations(atoms, mlip_energy, spin_multiplicity, calc_name, dispersion_
 
     #find the spin quantum number
     spin = (atoms.info['spin'] - 1)/2 # need to change spin_multiplcity from atoms.info to a total spin
-
+    atoms.pbc = False
+    
     true_vib_energy = max(vib_energies, key=lambda e: e.real).real
     vib_energies_for_thermo = [true_vib_energy]
     if true_vib_energy <= 0:
