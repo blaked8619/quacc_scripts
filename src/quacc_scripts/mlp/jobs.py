@@ -364,7 +364,7 @@ def relax_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="f
 def mini_choose_calc(method):
     if method =="meta":
         from fairchem.core import pretrained_mlip, FAIRChemCalculator
-        model_name = "uma-s-1p2"
+        model_name = "uma-s-1p2p1"
         predictor = pretrained_mlip.get_predict_unit(model_name)
         calc = FAIRChemCalculator(predictor, task_name="omol")
     elif method == "mace-medium":
