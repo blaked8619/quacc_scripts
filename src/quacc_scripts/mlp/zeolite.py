@@ -63,7 +63,7 @@ def mini_choose_calc(method):
     
     return calc
 
-#@job
+@job
 def relax_gas(atoms, fmax, spin_multiplicity, method):
     
     atoms.info['spin'] = spin_multiplicity
@@ -87,7 +87,7 @@ def relax_gas(atoms, fmax, spin_multiplicity, method):
     
     return {"output_atoms": atoms, "mlip_energy": mlip_energy, "spin_multiplicity": atoms.info['spin']}
 
-#@job
+@job
 def gas_vibrations(atoms, mlip_energy, spin_multiplicity, method):
     
  
