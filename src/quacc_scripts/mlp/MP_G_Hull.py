@@ -209,7 +209,7 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype, cuequivariance, 
 
     elif calc_name == "MACE_MATPES_r2SCAN_0":
         from mace.calculators import MACECalculator
-        calc = MACECalculator(model_paths=["/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MATPES-r2SCAN-0/MACE-matpes-r2scan-omat-ft.model"], device=device, default_dtype=dtype, enable_cueq=cuequivariance, enable_opeq=openequivariance)
+        calc = MACECalculator(model_paths=["/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MATPES-r2SCAN-0/MACE-matpes-r2scan-omat-ft.model"], device=device, default_dtype=dtype, enable_cueq=cuequivariance, enable_oeq=openequivariance)
 
     elif calc_name == "MACE_MH_1_MATPES_r2SCAN":  #the built in dispersion correction here is just the TorchDFTD3Calculator
         from mace.calculators import mace_mp
@@ -233,7 +233,7 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype, cuequivariance, 
     return calc
 
 @job
-def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_correction=False, dtype="float64", imaginary_freq_tol=-0.1, cuequivariance, openequivariance):
+def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_correction=False, dtype, imaginary_freq_tol, cuequivariance, openequivariance):
 
     start_time = time.perf_counter()
     calc = choose_calc(calc_name, atoms, dispersion_correction, dtype, cuequivariance, openequivariance)
