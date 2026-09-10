@@ -233,7 +233,7 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype, cuequivariance, 
     return calc
 
 @job
-def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_correction=False, dtype, imaginary_freq_tol, cuequivariance, openequivariance):
+def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_correction, dtype, imaginary_freq_tol, cuequivariance, openequivariance):
 
     start_time = time.perf_counter()
     calc = choose_calc(calc_name, atoms, dispersion_correction, dtype, cuequivariance, openequivariance)
@@ -332,11 +332,11 @@ def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_corr
 
 
 @job
-def relax_material(atoms, calc_name, fmax, dispersion_correction=False, dtype="float64", max_steps=1000):
+def relax_material(atoms, calc_name, fmax, dispersion_correction, dtype, cuequivariance, openequivariance, max_steps=1000):
     start_time = time.perf_counter()
     write('POSCAR', atoms, format='vasp')
 
-    calc = choose_calc(calc_name, atoms, dispersion_correction, dtype)
+    calc = choose_calc(calc_name, atoms, dispersion_correction, dtype, cuequivariance, openequivariance)
     atoms.calc = calc
 
     filtered_atoms = FrechetCellFilter(atoms)
