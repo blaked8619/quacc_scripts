@@ -175,6 +175,9 @@ def gas_vibrations(atoms, mlip_energy, spin_multiplicity, method):
            fmt="%12.3f %15.7f %15.7f %15.7f",
            header=header_full)
 
+    idx_298 = np.where(temperatures == 298)[0][0]
+    G_298K = float(G_free_energy[idx_298])
+
     
-    return {"output_atoms": atoms, "real_vibration_energies": real_energies, "imag_vibration_energies": imag_energies ,"spin_multiplicity": spin_multiplicity, "spin_quantum_number": spin, "geometry": geometry, "thermal_properties": data}
+    return {"output_atoms": atoms, "G_298K": G_298K, "real_vibration_energies": real_energies, "imag_vibration_energies": imag_energies ,"spin_multiplicity": spin_multiplicity, "spin_quantum_number": spin, "geometry": geometry, "thermal_properties": data}
 
