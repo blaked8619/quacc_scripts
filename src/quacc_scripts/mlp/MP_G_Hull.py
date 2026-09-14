@@ -29,6 +29,8 @@ from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 from pymatgen.analysis.bond_valence import BVAnalyzer
 
+from pymatgen.io.ase import AseAtomsAdaptor, MSONAtoms
+
 #from dftd4.ase import DFTD4
 
 import json
