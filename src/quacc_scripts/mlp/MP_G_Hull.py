@@ -361,6 +361,10 @@ def HA_material(atoms, calc_name, fmax, rattles, dispersion_correction, dtype, i
     end_time = time.perf_counter()
     execution_time = end_time - start_time
 
+    final_structure = results["final_structure"]
+    final_atoms = MSONAtoms(AseAtomsAdaptor.get_atoms(final_structure))
+    electronic_energy = result["energy"]
+    
     thermal_properties = result["thermal_properties"]
     temperatures = thermal_properties["temperatures"]
     entropy = thermal_properties["entropy"]
@@ -405,7 +409,7 @@ def HA_material(atoms, calc_name, fmax, rattles, dispersion_correction, dtype, i
         "n_atoms_primitive": len(phonon.primitive),
     }
     
-    return {"thermal_properties": data, "energy_correction": energy_correction, "time": execution_time, "phonopy_settings": phonopy_settings, "frequency_modes": frequency_modes, "Tstep": 1.0}
+    return {"thermal_properties": data, "output_atoms": final_atoms, "electronic_energy": electronic_energy, "energy_correction": energy_correction, "time": execution_time, "phonopy_settings": phonopy_settings, "frequency_modes": frequency_modes, "Tstep": 1.0}
 
 @job
 def relax_material(atoms, calc_name, fmax, dispersion_correction, dtype, max_steps=1000):
