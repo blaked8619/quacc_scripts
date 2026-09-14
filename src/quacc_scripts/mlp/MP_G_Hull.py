@@ -361,7 +361,7 @@ def HA_material(atoms, calc_name, fmax, rattles, dispersion_correction, dtype, i
     end_time = time.perf_counter()
     execution_time = end_time - start_time
 
-    final_structure = results["final_structure"]
+    final_structure = result["final_structure"]
     final_atoms = MSONAtoms(AseAtomsAdaptor.get_atoms(final_structure))
     electronic_energy = result["energy"]
     
