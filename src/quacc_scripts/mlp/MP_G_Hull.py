@@ -21,6 +21,7 @@ from emmet.core.symmetry import PointGroupData
 from pymatgen.io.ase import AseAtomsAdaptor
 
 from matcalc._qha import QHACalc
+from matcalc._phonon import PhononCalc
 
 from ase.calculators.mixing import SumCalculator
 from torch_dftd.torch_dftd3_calculator import TorchDFTD3Calculator
@@ -144,7 +145,7 @@ def obtain_energy_correction(calc_name, structure):
 
     return correction
 
-def choose_calc(calc_name, atoms, dispersion_correction, dtype, cuequivariance, openequivariance):
+def choose_calc(calc_name, atoms, dispersion_correction, dtype):
     device = "cuda"
     
     if calc_name == "UMA_OMAT":
@@ -209,7 +210,7 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype, cuequivariance, 
 
     elif calc_name == "MACE_MATPES_r2SCAN_0":
         from mace.calculators import MACECalculator
-        calc = MACECalculator(model_paths=["/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MATPES-r2SCAN-0/MACE-matpes-r2scan-omat-ft.model"], device=device, default_dtype=dtype, enable_cueq=cuequivariance, enable_oeq=openequivariance)
+        calc = MACECalculator(model_paths=["/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MACE-MATPES-r2SCAN-0/MACE-matpes-r2scan-omat-ft.model"], device=device, default_dtype=dtype)
 
     elif calc_name == "MACE_MH_1_MATPES_r2SCAN":  #the built in dispersion correction here is just the TorchDFTD3Calculator
         from mace.calculators import mace_mp
@@ -233,10 +234,10 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype, cuequivariance, 
     return calc
 
 @job
-def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_correction, dtype, imaginary_freq_tol, cuequivariance, openequivariance):
+def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_correction, dtype, imaginary_freq_tol):
 
     start_time = time.perf_counter()
-    calc = choose_calc(calc_name, atoms, dispersion_correction, dtype, cuequivariance, openequivariance)
+    calc = choose_calc(calc_name, atoms, dispersion_correction, dtype)
 
     structure = AseAtomsAdaptor.get_structure(atoms)
     energy_correction = obtain_energy_correction(calc_name, structure)
@@ -330,13 +331,88 @@ def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_corr
     
     return {"thermal_properties": data, "energy_correction": energy_correction, "time": execution_time, "phonopy_settings": phonopy_settings, "frequency_modes": frequency_modes, "Tstep": 1.0}
 
+@job 
+def HA_material(atoms, calc_name, fmax, rattles, dispersion_correction, dtype, imaginary_freq_tol):
+
+    start_time = time.perf_counter()
+    calc = choose_calc(calc_name, atoms, dispersion_correction, dtype)
+
+    structure = AseAtomsAdaptor.get_structure(atoms)
+    energy_correction = obtain_energy_correction(calc_name, structure)
+    
+    result = PhononCalc(
+    calc,
+    t_step=1.0,
+    t_max=3000,
+    fmax=fmax,
+    max_steps=100000,
+    optimizer="FIRE",
+    on_imaginary_modes="warn",
+    imaginary_freq_tol=imaginary_freq_tol,
+    fix_imaginary_attempts=rattles,  
+    min_length = 20.0,
+    atom_disp = 0.01,
+    write_total_dos = True ,
+    write_band_structure = True,
+    write_phonon=True,
+    write_force_constants = True
+    ).calc(atoms)
+
+    end_time = time.perf_counter()
+    execution_time = end_time - start_time
+
+    thermal_properties = result["thermal_properties"]
+    temperatures = thermal_properties["temperatures"]
+    entropy = thermal_properties["entropy"]
+    free_energy = thermal_properties["free_energy"]
+    heat_capacity = thermal_properties["heat_capacity"]
+    
+    data = np.column_stack((temperatures, entropy, free_energy, heat_capacity))
+
+    phonon = result["phonon"]
+    mesh_dict = phonon.get_mesh_dict()
+    frequencies_all = mesh_dict["frequencies"]
+    qpoints = mesh_dict["qpoints"]
+
+    imag_mask = frequencies_all < 0.0
+    qidx, _ = np.where(imag_mask)
+    frequency_modes = {
+        "n_positive_modes":      int(np.count_nonzero(~imag_mask)),   # freq >= 0
+        "n_imaginary_modes":     int(imag_mask.sum()),
+        "imaginary_frequencies": frequencies_all[imag_mask],           # (n_imag,), all < 0 THz
+        "imaginary_qpoints":     qpoints[qidx],                        # (n_imag, 3)
+    }
+
+    np.savetxt("all_frequencies.txt", frequencies_all.flatten(),
+               header="All frequencies from mesh (THz)")
+
+    with open("frequencies_by_qpoint.txt", "w") as f:
+        f.write("# q-point_index  qx  qy  qz  frequencies(THz)\n")
+        for q_idx, (qpt, freqs) in enumerate(zip(qpoints, frequencies_all)):
+            f.write(f"{q_idx}  {qpt[0]:.6f}  {qpt[1]:.6f}  {qpt[2]:.6f}  ")
+            f.write("  ".join(f"{freq:.6f}" for freq in freqs))
+            f.write("\n")
+
+    phonopy_settings = {
+        "supercell_matrix": phonon.supercell_matrix.tolist(),
+        "mesh":             list(phonon.mesh_numbers),
+        "primitive_matrix": phonon.primitive_matrix.tolist()
+                            if hasattr(phonon.primitive_matrix, "tolist")
+                            else str(phonon.primitive_matrix),
+        "symprec":          phonon.symmetry.tolerance,
+        "atom_disp":        0.01,
+        "n_atoms_supercell": len(phonon.supercell),
+        "n_atoms_primitive": len(phonon.primitive),
+    }
+    
+    return {"thermal_properties": data, "energy_correction": energy_correction, "time": execution_time, "phonopy_settings": phonopy_settings, "frequency_modes": frequency_modes, "Tstep": 1.0}
 
 @job
-def relax_material(atoms, calc_name, fmax, dispersion_correction, dtype, cuequivariance, openequivariance, max_steps=1000):
+def relax_material(atoms, calc_name, fmax, dispersion_correction, dtype, max_steps=1000):
     start_time = time.perf_counter()
     write('POSCAR', atoms, format='vasp')
 
-    calc = choose_calc(calc_name, atoms, dispersion_correction, dtype, cuequivariance, openequivariance)
+    calc = choose_calc(calc_name, atoms, dispersion_correction, dtype)
     atoms.calc = calc
 
     filtered_atoms = FrechetCellFilter(atoms)
