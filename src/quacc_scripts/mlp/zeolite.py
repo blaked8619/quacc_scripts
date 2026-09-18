@@ -43,9 +43,13 @@ import os
 def mini_choose_calc(method):
     if method =="meta":
         from fairchem.core import pretrained_mlip, FAIRChemCalculator
-        model_name = "uma-s-1p2p1"
-        predictor = pretrained_mlip.get_predict_unit(model_name)
+        from fairchem.core.units.mlip_unit import load_predict_unit
+        from fairchem.core.units.mlip_unit.predict import InferenceSettings
+        
+        checkpoint = "/home/bd8619/.cache/fairchem/models--facebook--UMA/snapshots/f611b917d9c68566bbbeccbb0aa0f7cad1696cb2/checkpoints/uma-s-1p2p1.pt"
+        predictor = load_predict_unit(checkpoint, device="cuda", inference_settings=InferenceSettings(base_precision_dtype="float64"))
         calc = FAIRChemCalculator(predictor, task_name="omol")
+        
     elif method == "mace-medium":
         from mace.calculators import mace_polar
         calc = mace_polar(
