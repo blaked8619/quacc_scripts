@@ -446,7 +446,7 @@ def relax_material(atoms, calc_name, fmax, dispersion_correction, dtype, max_ste
     return {"output_atoms": atoms, "energy": energy, "energy_correction": energy_correction, "time": execution_time}
 
 @job
-def relax_gas(atoms, fmax, calc_name, dispersion_correction=False, dtype="float64", max_steps=1000):
+def relax_gas(atoms, fmax, calc_name, dispersion_correction=False, dtype="float64", max_steps=30000):
 
     calc = choose_calc(calc_name, atoms, dispersion_correction, dtype)
     atoms.calc = calc
