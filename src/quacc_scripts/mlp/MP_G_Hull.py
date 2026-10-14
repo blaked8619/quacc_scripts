@@ -414,7 +414,7 @@ def HA_material(atoms, calc_name, fmax, rattles, dispersion_correction, dtype, i
     return {"thermal_properties": data, "output_atoms": final_atoms, "electronic_energy": electronic_energy, "energy_correction": energy_correction, "time": execution_time, "phonopy_settings": phonopy_settings, "frequency_modes": frequency_modes, "Tstep": 1.0}
 
 @job
-def relax_material(atoms, calc_name, fmax, dispersion_correction, dtype, max_steps=1000):
+def relax_material(atoms, calc_name, fmax, dispersion_correction, dtype, max_steps=30000):
     start_time = time.perf_counter()
     write('POSCAR', atoms, format='vasp')
 
