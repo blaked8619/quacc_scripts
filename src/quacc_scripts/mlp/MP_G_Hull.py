@@ -300,8 +300,9 @@ def QHA_material(atoms, calc_name, fmax, scale_factors, pressures, rattles, disp
 
     scale_factors = result["scale_factors"] # the scale factors that were actually kept
     # Electronic energy depends on the volume, not on T: one row per kept scale factor.
-    volume_data = np.column_stack((scale_factors_used, result["volumes"], result["electronic_energies"]))
-    
+    volume_data = np.column_stack((scale_factors, result["volumes"], result["electronic_energies"]))
+
+    phonopy_settings = None
     frequency_modes = {}
     for i, ha_result in enumerate(result["ha"]):
         volume_index = i
@@ -329,7 +330,7 @@ def QHA_material(atoms, calc_name, fmax, scale_factors, pressures, rattles, disp
             f.write(f"# Volume {volume_index}, scale {scale_factor:.3f}\n")
             f.write("# q-point_index  qx  qy  qz  frequencies(THz)\n")
             for q_indx, (qpt, freqs) in enumerate(zip(qpoints, frequencies_all)):
-                f.write(f"{i}  {qpt[0]:.6f}  {qpt[1]:.6f}  {qpt[2]:.6f}  ")
+                f.write(f"{q_indx}  {qpt[0]:.6f}  {qpt[1]:.6f}  {qpt[2]:.6f}  ")
                 f.write("  ".join(f"{freq:.6f}" for freq in freqs))
                 f.write("\n")
 
@@ -350,7 +351,7 @@ def QHA_material(atoms, calc_name, fmax, scale_factors, pressures, rattles, disp
     qha_raw = result["qha_raw"]
     # columns of thermal_properties: T (K), G (eV), alpha (1/K), C_P (J/K/mol), Gruneisen, B (GPa),
     # V_eq (A^3), S (J/K/mol); T is limited to the valid range of this pressure
-    return {"pressures_gpa": pressures, "thermal_properties": thermal_properties, "volume_data": volume_data,  "energy_correction": energy_correction, "time": execution_time, "phonopy_settings": phonopy_settings, "supercell_matricies": qha_raw["supercell_matrices"], "frequency_modes": frequency_modes, "imaginary_modes": result["imaginary_modes"], "qha_validity": result["qha_validity"], "qha_valid": bool(result["valid"]), "Tstep": 1.0}
+    return {"pressures_gpa": pressures, "thermal_properties": thermal_properties, "volume_data": volume_data,  "energy_correction": energy_correction, "time": execution_time, "phonopy_settings": phonopy_settings, "supercell_matrices": qha_raw["supercell_matrices"], "frequency_modes": frequency_modes, "imaginary_modes": result["imaginary_modes"], "qha_validity": result["qha_validity"], "qha_valid": qha_valid, "Tstep": 1.0}
 
 @job 
 def HA_material(atoms, calc_name, fmax, rattles, dispersion_correction, dtype, imaginary_freq_tol):
