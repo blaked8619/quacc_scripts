@@ -277,30 +277,30 @@ def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_corr
     end_time = time.perf_counter()
     execution_time = end_time - start_time
 
-    # The QHA object only covers the valid temperatures (None if no temperature is valid at this pressure).
-    if result["qha"] is not None:
-        plt = result["qha"].plot_qha()
-        plt.savefig("QHA.png", dpi=200)
-        plt.close("all")
-    
-    gibbs_energies = result["gibbs_free_energies"]
-    temperatures = result["temperatures"]
-    thermal_expansion_coefficients = result["thermal_expansion_coefficients"]
-    
-    heat_capacity_P = result["heat_capacity_P"]
-    gruneisen_parameters = result["gruneisen_parameters"]
-    bulk_modulus_P = result["bulk_modulus_P"]
-    equilibrium_volumes = result["equilibrium_volumes"]       # A^3 per primitive cell
-    entropies = result["entropies"]  #matcalc now computes this with a degree-4 polynomial                           # J/(K mol)
-    
-    volumes = result["volumes"]
+    thermal_properties = []      # one array per pressure, columns below
+    qha_valid = []
+    for pressure, res in zip(pressures, result["qha_results"]):
+        # The QHA object only covers the valid temperatures (None if no temperature is valid at this pressure).
+        if res["qha"] is not None:
+            plt = res["qha"].plot_qha()
+            plt.savefig(f"QHA_P{pressure:g}GPa.png", dpi=200)
+            plt.close("all")
+        # columns: T (K), G (eV), alpha (1/K), C_P (J/K/mol), Gruneisen, B (GPa), V_eq (A^3), S (J/K/mol).
+        # T is limited to the valid range of this pressure (None -> nan; none inside the valid range).
+        thermal_properties.append(
+            np.array(
+                [res["temperatures"], res["gibbs_free_energies"], res["thermal_expansion_coefficients"],
+                 res["heat_capacity_P"], res["gruneisen_parameters"], res["bulk_modulus_P"],
+                 res["equilibrium_volumes"], res["entropies"]],
+                dtype=float,
+            ).T
+        )
+        qha_valid.append(bool(res["valid"]))
 
-    electronic_energies = result["electronic_energies"]
-    scale_factors = qha_raw["scale_factors_used"]
- 
-    data = np.array([temperatures, gibbs_energies, thermal_expansion_coefficients, heat_capacity_P, gruneisen_parameters, bulk_modulus_P, equilibrium_volumes, entropies], dtype=float,).T
+
+    scale_factors = result["scale_factors_used"] # the scale factors that were actually kept
     # Electronic energy depends on the volume, not on T: one row per kept scale factor.
-    volume_data = np.column_stack((scale_factors_used, volumes, electronic_energies))
+    volume_data = np.column_stack((scale_factors_used, result["volumes"], result["electronic_energies"]))
     
     frequency_modes = {}
     for i, ha_result in enumerate(result["ha"]):
@@ -350,7 +350,7 @@ def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_corr
     qha_raw = result["qha_raw"]
     # columns of thermal_properties: T (K), G (eV), alpha (1/K), C_P (J/K/mol), Gruneisen, B (GPa),
     # V_eq (A^3), S (J/K/mol); T is limited to the valid range of this pressure
-    return {"thermal_properties": data, "volume_data": volume_data,  "energy_correction": energy_correction, "time": execution_time, "phonopy_settings": phonopy_settings, "supercell_matricies": qha_raw["supercell_matrices"], "frequency_modes": frequency_modes, "imaginary_modes": result["imaginary_modes"], "qha_validity": result["qha_validity"], "qha_valid": bool(result["valid"]), "Tstep": 1.0}
+    return {"pressures_gpa": pressures, "thermal_properties": thermal_properties, "volume_data": volume_data,  "energy_correction": energy_correction, "time": execution_time, "phonopy_settings": phonopy_settings, "supercell_matricies": qha_raw["supercell_matrices"], "frequency_modes": frequency_modes, "imaginary_modes": result["imaginary_modes"], "qha_validity": result["qha_validity"], "qha_valid": bool(result["valid"]), "Tstep": 1.0}
 
 @job 
 def HA_material(atoms, calc_name, fmax, rattles, dispersion_correction, dtype, imaginary_freq_tol):
