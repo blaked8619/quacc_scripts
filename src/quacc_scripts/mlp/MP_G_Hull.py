@@ -263,14 +263,18 @@ def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_corr
         "write_band_structure": True
     },
     write_ha_phonon=True,
-    store_ha_phonon=True
+    store_ha_phonon=True,
+    store_qha_raw=True,
+    write_qha_raw="qha_raw.json",
+    write_contcars=True,
     ).calc(atoms)
 
     end_time = time.perf_counter()
     execution_time = end_time - start_time
-    
-    result["qha"].plot_qha()
-    plt.savefig(f"QHA.png")
+
+    plt = result["qha"].plot_qha()
+    plt.savefig("QHA.png", dpi=200)
+    plt.close("all")
     
     gibbs_energies = result["gibbs_free_energies"]
     temperatures = result["temperatures"]
@@ -280,7 +284,9 @@ def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_corr
     gruneisen_parameters = result["gruneisen_parameters"]
     bulk_modulus_P = result["bulk_modulus_P"]
     electronic_energies = result["electronic_energies"]
-    scale_factors = result["scale_factors"]
+
+    qha_raw = result["qha_raw"]
+    scale_factors = qha_raw["scale_factors_used"]
     
     data = np.column_stack((temperatures, gibbs_energies, thermal_expansion_coefficients, heat_capacity_P, gruneisen_parameters, bulk_modulus_P))
     volume_data = np.column_stack((scale_factors, volumes, electronic_energies))
