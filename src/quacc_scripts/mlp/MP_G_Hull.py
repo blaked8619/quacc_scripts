@@ -298,7 +298,7 @@ def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_corr
     electronic_energies = result["electronic_energies"]
     scale_factors = qha_raw["scale_factors_used"]
  
-     data = np.array([temperatures, gibbs_energies, thermal_expansion_coefficients, heat_capacity_P, gruneisen_parameters, bulk_modulus_P, equilibrium_volumes, entropies], dtype=float,).T
+    data = np.array([temperatures, gibbs_energies, thermal_expansion_coefficients, heat_capacity_P, gruneisen_parameters, bulk_modulus_P, equilibrium_volumes, entropies], dtype=float,).T
     # Electronic energy depends on the volume, not on T: one row per kept scale factor.
     volume_data = np.column_stack((scale_factors_used, volumes, electronic_energies))
     
