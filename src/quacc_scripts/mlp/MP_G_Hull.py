@@ -300,7 +300,7 @@ def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_corr
  
      data = np.array(
         [temperatures, gibbs_energies, thermal_expansion_coefficients, heat_capacity_P,
-         gruneisen_parameters, bulk_modulus_P, equilibrium_volumes, entropies],
+        gruneisen_parameters, bulk_modulus_P, equilibrium_volumes, entropies],
         dtype=float,
     ).T
     # Electronic energy depends on the volume, not on T: one row per kept scale factor.
