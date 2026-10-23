@@ -298,7 +298,7 @@ def QHA_material(atoms, calc_name, fmax, scale_factors, pressures, rattles, disp
         qha_valid.append(bool(res["valid"]))
 
 
-    scale_factors = result["scale_factors_used"] # the scale factors that were actually kept
+    scale_factors = result["scale_factors"] # the scale factors that were actually kept
     # Electronic energy depends on the volume, not on T: one row per kept scale factor.
     volume_data = np.column_stack((scale_factors_used, result["volumes"], result["electronic_energies"]))
     
