@@ -236,7 +236,7 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
     return calc
 
 @job
-def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_correction, dtype, imaginary_freq_tol):
+def QHA_material(atoms, calc_name, fmax, scale_factors, pressures, rattles, dispersion_correction, dtype, imaginary_freq_tol):
 
     start_time = time.perf_counter()
     calc = choose_calc(calc_name, atoms, dispersion_correction, dtype)
@@ -248,7 +248,7 @@ def QHA_material(atoms, calc_name, fmax, scale_factors, rattles, dispersion_corr
     calc,
     t_step=1.0,
     t_max=None,
-    pressure=[1e-10, 1e-7, 0.0001, 0.001, 0.01],
+    pressure=pressures,
     fmax=fmax,
     max_steps=100000,
     optimizer="FIRE",
