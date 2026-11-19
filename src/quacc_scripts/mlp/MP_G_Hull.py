@@ -179,7 +179,7 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype, alpha=0.1):
 
     elif calc_name == "HSE06_Tunable_HF":
         from tunable_exchange_mlip.inference import AlphaMLIPCalculator, load_pretrained
-        model, z_table, r_max = load_pretrained("pretrained", device="cuda")
+        model, z_table, r_max = load_pretrained("/scratch/gpfs/ROSENGROUP/bd8619/mlip_models/MATPES_HSE06_Hananneh/pretrained", device="cuda")
         calc = AlphaMLIPCalculator(model, alpha=alpha, z_table=z_table, r_max=r_max)
         
     elif calc_name == "PET_OAM_XL":
