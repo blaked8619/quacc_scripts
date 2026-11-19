@@ -471,7 +471,7 @@ def relax_material(atoms, calc_name, fmax, dispersion_correction, dtype, max_ste
     return {"output_atoms": atoms, "energy": energy, "energy_correction": energy_correction, "time": execution_time}
 
 @job
-def static_material(atoms, calc_name, fmax, dispersion_correction, dtype, alpha=0.1):
+def static_material(atoms, calc_name, dispersion_correction, dtype, alpha=0.1):
     start_time = time.perf_counter()
     write('POSCAR', atoms, format='vasp')
 
