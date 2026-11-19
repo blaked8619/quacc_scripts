@@ -147,7 +147,7 @@ def obtain_energy_correction(calc_name, structure):
 
     return correction
 
-def choose_calc(calc_name, atoms, dispersion_correction, dtype):
+def choose_calc(calc_name, atoms, dispersion_correction, dtype, alpha=0.1):
     device = "cuda"
     
     if calc_name == "UMA_OMAT":
@@ -176,7 +176,12 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype):
         checkpoint = "/home/bd8619/.cache/aryan/HSE06_UMA_FASTPES/inference_ckpt.pt"
         predictor = load_predict_unit(checkpoint, device=device, inference_settings=InferenceSettings(base_precision_dtype=dtype))
         calc = FAIRChemCalculator(predictor, task_name="omat")
-    
+
+    elif calc_name == "HSE06_Tunable_HF":
+        from tunable_exchange_mlip.inference import AlphaMLIPCalculator, load_pretrained
+        model, z_table, r_max = load_pretrained("pretrained", device="cuda")
+        calc = AlphaMLIPCalculator(model, alpha=alpha, z_table=z_table, r_max=r_max)
+        
     elif calc_name == "PET_OAM_XL":
         from upet.calculator import UPETCalculator
         calc = UPETCalculator(checkpoint_path="/scratch/gpfs/ROSENGROUP/bd8619/checkpoints/PET-OAM-XL/pet-oam-xl-v1.0.0.ckpt", dtype= dtype, device=device)
@@ -466,11 +471,11 @@ def relax_material(atoms, calc_name, fmax, dispersion_correction, dtype, max_ste
     return {"output_atoms": atoms, "energy": energy, "energy_correction": energy_correction, "time": execution_time}
 
 @job
-def static_material(atoms, calc_name, fmax, dispersion_correction, dtype):
+def static_material(atoms, calc_name, fmax, dispersion_correction, dtype, alpha=0.1):
     start_time = time.perf_counter()
     write('POSCAR', atoms, format='vasp')
 
-    calc = choose_calc(calc_name, atoms, dispersion_correction, dtype)
+    calc = choose_calc(calc_name, atoms, dispersion_correction, dtype, alpha=0.1)
     atoms.calc = calc
 
     structure = AseAtomsAdaptor.get_structure(atoms)
