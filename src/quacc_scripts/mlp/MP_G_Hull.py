@@ -466,6 +466,27 @@ def relax_material(atoms, calc_name, fmax, dispersion_correction, dtype, max_ste
     return {"output_atoms": atoms, "energy": energy, "energy_correction": energy_correction, "time": execution_time}
 
 @job
+def static_material(atoms, calc_name, fmax, dispersion_correction, dtype):
+    start_time = time.perf_counter()
+    write('POSCAR', atoms, format='vasp')
+
+    calc = choose_calc(calc_name, atoms, dispersion_correction, dtype)
+    atoms.calc = calc
+
+    structure = AseAtomsAdaptor.get_structure(atoms)
+    energy_correction = obtain_energy_correction(calc_name, structure)
+
+    energy = atoms.get_potential_energy()
+        
+    write('CONTCAR', atoms, format='vasp')
+    atoms.info = {}
+
+    end_time = time.perf_counter()
+    execution_time = end_time - start_time
+    
+    return {"output_atoms": atoms, "energy": energy, "energy_correction": energy_correction, "time": execution_time}
+
+@job
 def relax_gas(atoms, fmax, calc_name, dispersion_correction=False, dtype="float64", max_steps=30000):
 
     calc = choose_calc(calc_name, atoms, dispersion_correction, dtype)
