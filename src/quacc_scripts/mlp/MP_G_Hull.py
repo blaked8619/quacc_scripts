@@ -475,7 +475,7 @@ def static_material(atoms, calc_name, fmax, dispersion_correction, dtype, alpha=
     start_time = time.perf_counter()
     write('POSCAR', atoms, format='vasp')
 
-    calc = choose_calc(calc_name, atoms, dispersion_correction, dtype, alpha=0.1)
+    calc = choose_calc(calc_name, atoms, dispersion_correction, dtype, alpha=alpha)
     atoms.calc = calc
 
     structure = AseAtomsAdaptor.get_structure(atoms)
