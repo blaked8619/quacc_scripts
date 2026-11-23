@@ -159,21 +159,12 @@ def choose_calc(calc_name, atoms, dispersion_correction, dtype, alpha=0.1):
         predictor = load_predict_unit(checkpoint, device=device, inference_settings=InferenceSettings(base_precision_dtype=dtype))
         calc = FAIRChemCalculator(predictor, task_name="omat")
         
-    elif calc_name == "UMA_HSE06":
+    elif calc_name == "UMA_FASTPES_HSE06":
         from fairchem.core import pretrained_mlip, FAIRChemCalculator
         from fairchem.core.units.mlip_unit import load_predict_unit
         from fairchem.core.units.mlip_unit.predict import InferenceSettings
 
         checkpoint = "/home/bd8619/.cache/aryan/HSE06_UMA/inference_ckpt.pt"
-        predictor = load_predict_unit(checkpoint, device=device, inference_settings=InferenceSettings(base_precision_dtype=dtype))
-        calc = FAIRChemCalculator(predictor, task_name="omat")
-        
-    elif calc_name == "UMA_HSE06_FASTPES":
-        from fairchem.core import pretrained_mlip, FAIRChemCalculator
-        from fairchem.core.units.mlip_unit import load_predict_unit
-        from fairchem.core.units.mlip_unit.predict import InferenceSettings
-
-        checkpoint = "/home/bd8619/.cache/aryan/HSE06_UMA_FASTPES/inference_ckpt.pt"
         predictor = load_predict_unit(checkpoint, device=device, inference_settings=InferenceSettings(base_precision_dtype=dtype))
         calc = FAIRChemCalculator(predictor, task_name="omat")
 
